@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- ========================================================================
+     Risaie Connect — 不動産DXアプリ サービスサイト（LP）
+     ブランド表記「Risaie Connect」は仮称。後で一括変更しやすいよう、
+     表示名はテキストとして各所に記述しています（検索置換で変更可能）。
+     ヒーローのモックUIは将来 実機スクリーンショットに差し替え可能なよう
+     構造を分離しています（<!-- TODO --> を参照）。
+     ===================================================================== -->
+<title>Risaie Connect ｜ 中標津の不動産業務を、ひとつのアプリへ</title>
+<meta name="description" content="社内の物件管理ソフトとお客様向けアプリが、ひとつの共通データでつながる不動産DXアプリ。中標津の不動産業務を、まるごと内製したスマートフォンアプリへ。">
+
+<!-- Google Fonts（唯一の外部依存） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&family=Noto+Serif+JP:wght@700&display=swap" rel="stylesheet">
+
+<style>
+/* =======================================================================
+   1. トークン（CSS変数）
+   ===================================================================== */
+:root{
+  --navy:#13223d;  --navy-2:#1d3252;  --navy-deep:#0e1a30;
+  --gold:#a9823b;  --gold-2:#c6a25a;
+  --paper:#f6f3ec; --paper-2:#efeadf; --white:#fff;
+  --ink:#23262b;   --muted:#71757c;   --line:#e3ddd0; --line-2:#d8d2c4;
+
+  --sh-sm:0 2px 10px rgba(19,34,61,.05);
+  --sh-md:0 10px 30px rgba(19,34,61,.08);
+  --sh-lg:0 24px 60px rgba(19,34,61,.16);
+
+  --r-card:16px;  --r-btn:3px;
+  --maxw:1180px;
+  --nav-h:74px;
+}
+
+/* =======================================================================
+   2. ベース
+   ===================================================================== */
+*{box-sizing:border-box;}
+html{
+  scroll-behavior:smooth;
+  scroll-padding-top:calc(var(--nav-h) + 12px);
+  -webkit-text-size-adjust:100%;
+}
+body{
+  margin:0;
+  font-family:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+  font-weight:400;
+  color:var(--ink);
+  background:var(--paper);
+  line-height:1.85;
+  letter-spacing:.01em;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+h1,h2,h3,h4{font-family:"Noto Serif JP",serif;font-weight:700;margin:0;line-height:1.4;}
+p{margin:0;}
+a{color:inherit;text-decoration:none;}
+ul{margin:0;padding:0;list-style:none;}
+img{max-width:100%;display:block;}
+svg{display:block;}
+
+.container{
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:0 32px;
+}
+section{padding:104px 0;position:relative;}
+
+/* セクション・エイブロウ（英字ラベル） */
+.eyebrow{
+  display:inline-block;
+  color:var(--gold);
+  letter-spacing:.3em;
+  font-size:.72rem;
+  font-weight:500;
+  text-transform:uppercase;
+  margin-bottom:18px;
+}
+.eyebrow.on-dark{color:var(--gold-2);}
+
+/* セクション見出し＋金の罫 */
+.sec-title{
+  font-size:clamp(1.6rem,3.3vw,2.35rem);
+  letter-spacing:.02em;
+  color:var(--navy);
+}
+.sec-title.on-dark{color:var(--white);}
+.rule{
+  width:50px;height:3px;border-radius:3px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-2));
+  margin:22px 0 0;
+}
+.sec-head{margin-bottom:54px;}
+
+.gold-text{color:var(--gold-2);}
+
+/* 共通ボタン */
+.btn{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:15px 30px;
+  border-radius:var(--r-btn);
+  font-size:.95rem;font-weight:500;
+  letter-spacing:.04em;
+  transition:transform .25s ease,box-shadow .25s ease,background .25s ease,color .25s ease,border-color .25s ease;
+  cursor:pointer;border:1px solid transparent;
+}
+.btn svg{width:17px;height:17px;}
+.btn-gold{
+  background:linear-gradient(120deg,var(--gold),var(--gold-2));
+  color:#fff;box-shadow:var(--sh-md);
+}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:var(--sh-lg);}
+.btn-ghost{
+  background:transparent;color:#fff;border-color:rgba(255,255,255,.4);
+}
+.btn-ghost:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.75);transform:translateY(-2px);}
+.btn-ghost-dark{
+  background:transparent;color:var(--navy);border-color:var(--line-2);
+}
+.btn-ghost-dark:hover{background:var(--white);box-shadow:var(--sh-sm);transform:translateY(-2px);}
+
+/* =======================================================================
+   3. 固定ナビ
+   ===================================================================== */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:var(--nav-h);
+  display:flex;align-items:center;
+  transition:background .35s ease,box-shadow .35s ease,backdrop-filter .35s ease;
+  background:transparent;
+}
+.nav .container{display:flex;align-items:center;justify-content:space-between;width:100%;}
+.brand{display:flex;flex-direction:column;line-height:1.15;color:#fff;transition:color .35s ease;}
+.brand .brand-name{font-family:"Noto Serif JP",serif;font-weight:700;font-size:1.28rem;letter-spacing:.04em;}
+.brand .brand-sub{font-size:.62rem;letter-spacing:.32em;font-weight:500;opacity:.78;margin-top:2px;}
+.nav-links{display:flex;align-items:center;gap:34px;}
+.nav-links a{
+  font-size:.86rem;font-weight:500;color:rgba(255,255,255,.86);letter-spacing:.06em;
+  transition:color .25s ease;position:relative;
+}
+.nav-links a:not(.btn)::after{
+  content:"";position:absolute;left:0;bottom:-7px;width:0;height:1.5px;
+  background:var(--gold-2);transition:width .3s ease;
+}
+.nav-links a:not(.btn):hover::after{width:100%;}
+.nav-links a:not(.btn):hover{color:#fff;}
+.nav .btn{padding:11px 22px;font-size:.84rem;}
+
+/* スクロール後 */
+.nav.scrolled{
+  background:rgba(255,255,255,.86);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  box-shadow:0 1px 0 rgba(19,34,61,.06),var(--sh-sm);
+}
+.nav.scrolled .brand{color:var(--navy);}
+.nav.scrolled .nav-links a{color:var(--navy);}
+.nav.scrolled .nav-links a:not(.btn){color:#43505f;}
+.nav.scrolled .nav-links a:not(.btn):hover{color:var(--navy);}
+.nav.scrolled .nav-links .btn-gold{color:#fff;}
+
+/* =======================================================================
+   4. ヒーロー
+   ===================================================================== */
+.hero{
+  padding:calc(var(--nav-h) + 86px) 0 96px;
+  background:
+    radial-gradient(1100px 600px at 78% -10%,rgba(198,162,90,.16),transparent 60%),
+    linear-gradient(160deg,var(--navy-2) 0%,var(--navy) 46%,var(--navy-deep) 100%);
+  position:relative;overflow:hidden;
+}
+/* うっすらグリッド模様 */
+.grid-bg::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+  background-size:46px 46px;
+  -webkit-mask-image:radial-gradient(120% 90% at 50% 0%,#000 35%,transparent 85%);
+  mask-image:radial-gradient(120% 90% at 50% 0%,#000 35%,transparent 85%);
+}
+.hero-grid{
+  display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;
+  position:relative;z-index:2;
+}
+.hero-copy{color:#fff;}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:8px 18px;border-radius:999px;
+  border:1px solid rgba(198,162,90,.45);
+  background:rgba(198,162,90,.08);
+  font-size:.72rem;letter-spacing:.18em;font-weight:500;
+  color:#e9dcc0;margin-bottom:30px;
+}
+.hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--gold-2);box-shadow:0 0 0 4px rgba(198,162,90,.2);}
+.hero h1{
+  font-size:clamp(2.05rem,5vw,3.5rem);
+  line-height:1.32;letter-spacing:.01em;color:#fff;
+}
+.hero-sub{
+  margin-top:26px;font-weight:300;font-size:clamp(.98rem,1.4vw,1.08rem);
+  color:rgba(255,255,255,.82);max-width:30em;line-height:1.95;
+}
+.hero-btns{display:flex;flex-wrap:wrap;gap:16px;margin-top:40px;}
+.hero-stats{
+  display:flex;gap:14px;margin-top:52px;flex-wrap:wrap;
+  border-top:1px solid rgba(255,255,255,.12);padding-top:34px;
+}
+.stat{flex:1;min-width:140px;}
+.stat .num{font-family:"Noto Serif JP",serif;font-weight:700;font-size:1.7rem;color:var(--gold-2);line-height:1.2;}
+.stat .lbl{font-size:.78rem;font-weight:300;color:rgba(255,255,255,.7);margin-top:6px;letter-spacing:.02em;}
+
+/* --- ヒーロー右：スマホアプリのモック（CSS/HTMLで描画） -------------------
+     TODO: 将来、下記 .phone-screen の中身を実機スクリーンショット
+           （<img>）に差し替え可能。筐体(.phone)と画面(.phone-screen)を
+           分離しているため、.phone-screen の中だけ置換すればよい。       */
+.hero-visual{position:relative;display:flex;justify-content:center;align-items:center;min-height:560px;}
+.phone{
+  position:relative;width:296px;height:600px;
+  border-radius:42px;padding:13px;
+  background:linear-gradient(160deg,#243a5e,#0e1a30);
+  box-shadow:var(--sh-lg),0 0 0 1px rgba(255,255,255,.06) inset;
+  z-index:2;
+}
+.phone .notch{
+  position:absolute;top:13px;left:50%;transform:translateX(-50%);
+  width:128px;height:26px;background:#0b1426;border-radius:0 0 16px 16px;z-index:5;
+}
+.phone-screen{
+  width:100%;height:100%;border-radius:31px;overflow:hidden;
+  background:var(--paper);display:flex;flex-direction:column;position:relative;
+}
+/* アプリ：ヘッダー */
+.app-header{
+  background:linear-gradient(150deg,var(--navy-2),var(--navy));
+  color:#fff;padding:40px 20px 20px;
+}
+.app-header .area{font-size:.62rem;letter-spacing:.26em;color:var(--gold-2);font-weight:500;}
+.app-header .h{font-family:"Noto Serif JP",serif;font-size:1.12rem;margin-top:6px;}
+.app-search{
+  margin:16px 16px 0;display:flex;align-items:center;gap:9px;
+  background:#fff;border-radius:11px;padding:11px 14px;
+  box-shadow:var(--sh-sm);font-size:.74rem;color:var(--muted);
+}
+.app-search svg{width:15px;height:15px;color:var(--gold);flex:none;}
+/* アプリ：物件カード */
+.app-body{padding:16px;display:flex;flex-direction:column;gap:13px;overflow:hidden;flex:1;}
+.prop{
+  background:#fff;border-radius:13px;overflow:hidden;box-shadow:var(--sh-sm);
+  border:1px solid var(--line);
+}
+.prop .ph{height:84px;position:relative;
+  background:linear-gradient(135deg,#cdd6e2,#aab6c7);}
+.prop .ph.gold{background:linear-gradient(135deg,#e3cf9f,#c6a25a);}
+.prop .ph .tag{
+  position:absolute;top:9px;left:9px;font-size:.6rem;font-weight:500;letter-spacing:.04em;
+  background:rgba(19,34,61,.86);color:#fff;padding:3px 9px;border-radius:999px;
+}
+.prop .ph .tag.empty{background:rgba(169,130,59,.95);}
+.prop .meta{padding:10px 13px 12px;}
+.prop .price{font-family:"Noto Serif JP",serif;font-weight:700;font-size:.98rem;color:var(--navy);}
+.prop .addr{font-size:.68rem;color:var(--muted);margin-top:3px;}
+/* アプリ：タブバー */
+.app-tabs{
+  display:flex;justify-content:space-around;align-items:center;
+  padding:13px 6px;background:#fff;border-top:1px solid var(--line);
+}
+.app-tabs .tab{color:#aeb4bd;}
+.app-tabs .tab svg{width:21px;height:21px;}
+.app-tabs .tab.active{color:var(--gold);}
+
+/* スマホ外：フローティングカード */
+.float-card{
+  position:absolute;z-index:3;background:#fff;border-radius:14px;
+  box-shadow:var(--sh-lg);padding:14px 16px;display:flex;align-items:center;gap:12px;
+  max-width:215px;
+}
+.float-card .ico{
+  width:38px;height:38px;flex:none;border-radius:10px;
+  background:linear-gradient(135deg,#f4ecd9,#e6d3a6);
+  display:flex;align-items:center;justify-content:center;color:var(--gold);
+}
+.float-card .ico svg{width:20px;height:20px;}
+.float-card .ttl{font-weight:500;font-size:.82rem;color:var(--navy);line-height:1.3;}
+.float-card .desc{font-size:.68rem;color:var(--muted);margin-top:2px;}
+.float-card.fc-1{top:60px;left:-6px;}
+.float-card.fc-2{bottom:74px;right:-10px;}
+
+/* =======================================================================
+   5. セクション共通の背景
+   ===================================================================== */
+.bg-paper{background:var(--paper);}
+.bg-paper-2{background:var(--paper-2);}
+.bg-navy{background:var(--navy);color:#fff;}
+.bg-navy-deep{background:var(--navy-deep);color:#fff;}
+
+/* =======================================================================
+   6. 課題（ISSUE）
+   ===================================================================== */
+.issue-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:24px;
+}
+.issue-card{
+  background:#fff;border-radius:var(--r-card);padding:30px 26px 32px;
+  box-shadow:var(--sh-sm);border:1px solid var(--line);
+  transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease;
+}
+.issue-card:hover{transform:translateY(-8px);box-shadow:var(--sh-lg);}
+.issue-card .no{
+  font-family:"Noto Serif JP",serif;font-weight:700;font-size:1.55rem;
+  color:var(--gold);letter-spacing:.04em;
+}
+.issue-card .no::after{content:"";display:block;width:28px;height:2px;background:var(--line-2);margin-top:14px;}
+.issue-card h3{font-size:1.06rem;margin:20px 0 12px;color:var(--navy);line-height:1.55;}
+.issue-card p{font-size:.86rem;font-weight:300;color:#54585f;line-height:1.9;}
+
+/* =======================================================================
+   7. コンセプト（CONCEPT）
+   ===================================================================== */
+.concept{overflow:hidden;}
+.concept .glow{
+  position:absolute;top:-160px;right:-120px;width:520px;height:520px;border-radius:50%;
+  background:radial-gradient(circle,rgba(198,162,90,.22),transparent 65%);pointer-events:none;
+}
+.concept-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center;position:relative;z-index:2;}
+.concept h2{font-size:clamp(1.8rem,3.8vw,2.7rem);color:#fff;line-height:1.4;}
+.concept-lead{margin-top:28px;font-weight:300;color:rgba(255,255,255,.82);font-size:1rem;line-height:2;max-width:34em;}
+.concept-brand{
+  background:linear-gradient(150deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.12);border-radius:20px;
+  padding:46px 40px;text-align:center;
+  box-shadow:var(--sh-lg);
+}
+.concept-brand .big{font-family:"Noto Serif JP",serif;font-weight:700;font-size:clamp(1.9rem,4vw,2.6rem);color:#fff;letter-spacing:.03em;}
+.concept-brand .sub{color:var(--gold-2);font-size:.82rem;letter-spacing:.16em;margin-top:10px;font-weight:500;}
+.pills{display:flex;flex-wrap:wrap;gap:11px;justify-content:center;margin-top:30px;}
+.pill{
+  border:1px solid rgba(198,162,90,.5);border-radius:999px;
+  padding:8px 18px;font-size:.8rem;color:#ecdfc4;letter-spacing:.04em;font-weight:400;
+}
+
+/* =======================================================================
+   8. 全体像（STRUCTURE）
+   ===================================================================== */
+.struct-grid{display:grid;grid-template-columns:1fr .82fr 1fr;gap:22px;align-items:stretch;}
+.struct-col{
+  background:#fff;border-radius:var(--r-card);padding:30px 28px;
+  box-shadow:var(--sh-md);position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.struct-col::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;}
+.struct-col.staff::before{background:linear-gradient(90deg,var(--navy),var(--navy-2));}
+.struct-col.cust::before{background:linear-gradient(90deg,var(--gold),var(--gold-2));}
+.struct-col .role{font-size:.66rem;letter-spacing:.24em;font-weight:500;color:var(--gold);}
+.struct-col .name{font-family:"Noto Serif JP",serif;font-weight:700;font-size:1.18rem;color:var(--navy);margin:7px 0 20px;}
+.struct-col ul li{
+  font-size:.86rem;font-weight:300;color:#54585f;
+  padding:11px 0 11px 24px;position:relative;border-bottom:1px dashed var(--line-2);
+}
+.struct-col ul li:last-child{border-bottom:none;}
+.struct-col ul li::before{
+  content:"";position:absolute;left:2px;top:19px;width:7px;height:7px;border-radius:2px;
+  background:var(--gold-2);
+}
+.struct-col.center{
+  background:linear-gradient(160deg,var(--navy-2),var(--navy-deep));
+  color:#fff;justify-content:center;align-items:center;text-align:center;
+}
+.struct-col.center::before{display:none;}
+.struct-col.center .role{color:var(--gold-2);}
+.struct-col.center .name{color:#fff;}
+.struct-col.center .db-ico{
+  width:64px;height:64px;border-radius:16px;border:1px solid rgba(198,162,90,.4);
+  background:rgba(198,162,90,.1);display:flex;align-items:center;justify-content:center;
+  color:var(--gold-2);margin:0 auto 18px;
+}
+.struct-col.center .db-ico svg{width:30px;height:30px;}
+.struct-col.center p{font-size:.84rem;font-weight:300;color:rgba(255,255,255,.8);}
+.struct-col.center .arrows{display:flex;gap:8px;justify-content:center;margin-top:18px;color:var(--gold-2);}
+.struct-col.center .arrows svg{width:22px;height:22px;}
+.struct-cap{
+  margin-top:36px;text-align:center;font-weight:300;color:#54585f;
+  font-size:.96rem;max-width:46em;margin-left:auto;margin-right:auto;line-height:1.95;
+}
+.struct-cap strong{color:var(--navy);font-weight:500;
+  background:linear-gradient(transparent 62%,rgba(198,162,90,.32) 62%);}
+
+/* =======================================================================
+   9. 機能（FEATURE）
+   ===================================================================== */
+.feat-group{margin-bottom:54px;}
+.feat-group:last-child{margin-bottom:0;}
+.feat-head{display:flex;align-items:center;gap:16px;margin-bottom:24px;}
+.feat-badge{
+  width:48px;height:48px;border-radius:13px;flex:none;
+  background:linear-gradient(150deg,var(--navy-2),var(--navy));
+  display:flex;align-items:center;justify-content:center;color:var(--gold-2);
+  box-shadow:var(--sh-sm);
+}
+.feat-badge svg{width:24px;height:24px;}
+.feat-head .gno{font-family:"Noto Serif JP",serif;font-weight:700;color:var(--gold);font-size:1.1rem;letter-spacing:.06em;}
+.feat-head .gname{font-family:"Noto Serif JP",serif;font-weight:700;color:var(--navy);font-size:1.3rem;}
+.feat-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+.feat-card{
+  background:#fff;border-radius:14px;padding:24px 26px;
+  box-shadow:var(--sh-sm);border:1px solid var(--line);
+  transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease;
+}
+.feat-card:hover{transform:translateY(-6px);box-shadow:var(--sh-md);}
+.feat-card .ttl{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-bottom:11px;}
+.feat-card h4{font-size:1rem;color:var(--navy);}
+.feat-card .tag{
+  font-size:.62rem;font-weight:500;letter-spacing:.06em;padding:3px 9px;border-radius:999px;
+  background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#fff;
+}
+.feat-card p{font-size:.85rem;font-weight:300;color:#54585f;line-height:1.9;}
+
+/* =======================================================================
+   10. Before / After（IMPACT）
+   ===================================================================== */
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:stretch;}
+.ba-card{border-radius:var(--r-card);padding:36px 34px;}
+.ba-before{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.13);
+}
+.ba-after{
+  background:linear-gradient(150deg,var(--gold),#9a7433);
+  box-shadow:var(--sh-lg);
+}
+.ba-card .ba-label{font-size:.72rem;letter-spacing:.24em;font-weight:500;margin-bottom:20px;}
+.ba-before .ba-label{color:rgba(255,255,255,.6);}
+.ba-after .ba-label{color:rgba(255,255,255,.92);}
+.ba-card ul li{display:flex;gap:13px;align-items:flex-start;padding:13px 0;font-weight:300;font-size:.93rem;}
+.ba-before ul li{color:rgba(255,255,255,.66);border-bottom:1px solid rgba(255,255,255,.08);}
+.ba-after ul li{color:#fff;border-bottom:1px solid rgba(255,255,255,.18);}
+.ba-card ul li:last-child{border-bottom:none;}
+.ba-card .mk{flex:none;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:2px;}
+.ba-before .mk{background:rgba(255,255,255,.1);color:rgba(255,255,255,.65);}
+.ba-after .mk{background:rgba(255,255,255,.22);color:#fff;}
+.ba-card .mk svg{width:13px;height:13px;}
+
+/* =======================================================================
+   11. 費用（PLAN & COST）
+   ===================================================================== */
+.cost-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:24px;align-items:stretch;}
+.cost-main{
+  background:linear-gradient(155deg,var(--navy-2),var(--navy-deep));
+  border-radius:20px;padding:46px 44px;color:#fff;position:relative;overflow:hidden;
+  box-shadow:var(--sh-lg);display:flex;flex-direction:column;justify-content:center;
+}
+.cost-main::after{
+  content:"";position:absolute;right:-90px;bottom:-90px;width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(198,162,90,.28),transparent 65%);
+}
+.cost-main .lbl{font-size:.72rem;letter-spacing:.22em;color:var(--gold-2);font-weight:500;position:relative;z-index:2;}
+.cost-main .price{font-family:"Noto Serif JP",serif;font-weight:700;font-size:clamp(2.1rem,4.5vw,3rem);margin:14px 0 18px;position:relative;z-index:2;}
+.cost-main p{font-weight:300;color:rgba(255,255,255,.82);font-size:.92rem;line-height:1.95;position:relative;z-index:2;max-width:30em;}
+.cost-side{display:flex;flex-direction:column;gap:24px;}
+.cost-card{
+  background:#fff;border-radius:var(--r-card);padding:28px 28px;
+  box-shadow:var(--sh-sm);border:1px solid var(--line);flex:1;
+}
+.cost-card .lbl{font-size:.68rem;letter-spacing:.2em;color:var(--gold);font-weight:500;}
+.cost-card h4{font-size:1.1rem;color:var(--navy);margin:8px 0 12px;}
+.cost-card p{font-size:.84rem;font-weight:300;color:#54585f;line-height:1.9;}
+.cost-note{
+  margin-top:30px;padding:16px 22px;border-left:3px solid var(--gold);
+  background:rgba(169,130,59,.06);border-radius:0 8px 8px 0;
+  font-size:.82rem;font-weight:300;color:#54585f;line-height:1.85;
+}
+
+/* =======================================================================
+   12. 導入の流れ（FLOW）
+   ===================================================================== */
+.flow-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
+.flow-card{
+  background:#fff;border-radius:var(--r-card);padding:32px 26px;position:relative;
+  box-shadow:var(--sh-sm);border:1px solid var(--line);
+  transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease;
+}
+.flow-card:hover{transform:translateY(-6px);box-shadow:var(--sh-md);}
+.flow-card .dot{
+  width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(150deg,var(--navy-2),var(--navy));color:var(--gold-2);
+  font-family:"Noto Serif JP",serif;font-weight:700;font-size:1.15rem;margin-bottom:20px;
+  box-shadow:var(--sh-sm);
+}
+.flow-card h4{font-size:1.05rem;color:var(--navy);margin-bottom:10px;}
+.flow-card p{font-size:.84rem;font-weight:300;color:#54585f;line-height:1.85;}
+.flow-card .term{display:inline-block;margin-top:14px;font-size:.72rem;font-weight:500;color:var(--gold);letter-spacing:.04em;}
+
+/* =======================================================================
+   13. CTA（NEXT STEP）
+   ===================================================================== */
+.cta{
+  background:
+    radial-gradient(900px 500px at 50% -20%,rgba(198,162,90,.18),transparent 60%),
+    linear-gradient(160deg,var(--navy-2),var(--navy-deep));
+  text-align:center;overflow:hidden;
+}
+.cta .container{position:relative;z-index:2;}
+.cta h2{font-size:clamp(1.8rem,4vw,2.7rem);color:#fff;line-height:1.42;}
+.cta p{margin:26px auto 38px;font-weight:300;color:rgba(255,255,255,.82);font-size:1rem;max-width:42em;line-height:2;}
+
+/* =======================================================================
+   14. フッター（コーポレート風）
+   ===================================================================== */
+.footer{padding:72px 0 36px;}
+.footer-top{display:grid;grid-template-columns:1.5fr 1fr;gap:48px;padding-bottom:44px;border-bottom:1px solid rgba(255,255,255,.1);}
+.footer-brand .brand-name{font-family:"Noto Serif JP",serif;font-weight:700;font-size:1.5rem;letter-spacing:.04em;color:#fff;}
+.footer-brand p{margin-top:16px;font-weight:300;font-size:.86rem;color:rgba(255,255,255,.66);line-height:1.9;max-width:30em;}
+.footer-brand .note{margin-top:12px;font-size:.74rem;color:rgba(255,255,255,.4);}
+.footer-links{display:grid;grid-template-columns:1fr 1fr;gap:30px;}
+.footer-links .col h5{font-size:.68rem;letter-spacing:.2em;color:var(--gold-2);font-weight:500;margin-bottom:18px;font-family:"Noto Sans JP",sans-serif;}
+.footer-links .col a{display:block;font-size:.86rem;font-weight:300;color:rgba(255,255,255,.72);padding:7px 0;transition:color .25s ease;}
+.footer-links .col a:hover{color:#fff;}
+.footer-bottom{padding-top:28px;display:flex;flex-wrap:wrap;gap:8px 26px;justify-content:space-between;align-items:center;}
+.footer-bottom span{font-size:.76rem;font-weight:300;color:rgba(255,255,255,.5);letter-spacing:.02em;}
+
+/* =======================================================================
+   15. スクロールリビール
+   ===================================================================== */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);}
+.reveal.is-visible{opacity:1;transform:none;}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  .reveal{opacity:1;transform:none;transition:none;}
+  .btn,.issue-card,.feat-card,.flow-card{transition:none;}
+}
+
+/* =======================================================================
+   16. レスポンシブ
+   ===================================================================== */
+@media (max-width:1024px){
+  .hero-grid{gap:36px;}
+  .issue-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width:880px){
+  .hero-grid{grid-template-columns:1fr;}
+  .hero-visual{margin-top:48px;min-height:auto;}
+  .concept-grid{grid-template-columns:1fr;gap:40px;}
+  .struct-grid{grid-template-columns:1fr;}
+  .struct-col.center{order:0;}
+  .struct-col.center .arrows{transform:rotate(90deg);}
+}
+@media (max-width:860px){
+  .nav-links a:not(.btn){display:none;}
+}
+@media (max-width:760px){
+  section{padding:80px 0;}
+  .feat-cards{grid-template-columns:1fr;}
+  .ba-grid{grid-template-columns:1fr;}
+  .cost-grid{grid-template-columns:1fr;}
+  .flow-grid{grid-template-columns:repeat(2,1fr);}
+  .footer-top{grid-template-columns:1fr;gap:36px;}
+}
+@media (max-width:640px){
+  .container{padding:0 22px;}
+  .issue-grid{grid-template-columns:1fr;}
+  .flow-grid{grid-template-columns:1fr;}
+  .hero-stats{gap:18px;}
+  .stat{min-width:45%;}
+}
+@media (max-width:430px){
+  .float-card{display:none;}
+  .phone{width:248px;height:506px;border-radius:36px;}
+  .footer-bottom{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<!-- ====================== ① 固定ナビ ====================== -->
+<nav class="nav" id="nav">
+  <div class="container">
+    <a href="#top" class="brand">
+      <span class="brand-name">Risaie Connect</span>
+      <span class="brand-sub">不動産DXアプリ</span>
+    </a>
+    <div class="nav-links">
+      <a href="#problem">課題</a>
+      <a href="#concept">特徴</a>
+      <a href="#features">機能</a>
+      <a href="#pricing">費用</a>
+      <a href="#cta" class="btn btn-gold">導入を相談する</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ====================== ② ヒーロー ====================== -->
+<header class="hero grid-bg" id="top">
+  <div class="container">
+    <div class="hero-grid">
+
+      <!-- 左：コピー -->
+      <div class="hero-copy reveal">
+        <span class="hero-badge"><span class="dot"></span>PROPOSAL FOR 株式会社リサイエ</span>
+        <h1>社内管理とお客様を、<br><span class="gold-text">ひとつのアプリ</span>で。</h1>
+        <p class="hero-sub">物件管理・集客・査定・接客まで。中標津の不動産業務を、まるごと内製したスマートフォンアプリへ。</p>
+        <div class="hero-btns">
+          <a href="#concept" class="btn btn-gold">
+            提案を見る
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a href="#cta" class="btn btn-ghost">導入を相談する</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat"><div class="num">2画面</div><div class="lbl">社内管理 ＋ お客様アプリ</div></div>
+          <div class="stat"><div class="num">1つ</div><div class="lbl">共通データで完全同期</div></div>
+          <div class="stat"><div class="num">¥0〜</div><div class="lbl">ランニングはほぼゼロ</div></div>
+        </div>
+      </div>
+
+      <!-- 右：スマホアプリのモック（CSS/HTMLで描画） -->
+      <div class="hero-visual reveal">
+        <!-- フローティングカード（スマホの外） -->
+        <div class="float-card fc-1">
+          <div class="ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+          </div>
+          <div><div class="ttl">空き家査定</div><div class="desc">写真で即診断</div></div>
+        </div>
+        <div class="float-card fc-2">
+          <div class="ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+          </div>
+          <div><div class="ttl">社内管理と同期</div><div class="desc">入力は一度きり</div></div>
+        </div>
+
+        <!-- スマホ筐体 -->
+        <div class="phone">
+          <div class="notch"></div>
+          <!-- TODO: ここから .phone-screen の中身は、将来 実機スクリーンショット
+                     （<img src="screenshot.png">）に差し替え可能 -->
+          <div class="phone-screen">
+            <div class="app-header">
+              <div class="area">NAKASHIBETSU ／ BEKKAI</div>
+              <div class="h">エリアの物件をさがす</div>
+            </div>
+            <div class="app-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              中標津町・別海町・釧路市
+            </div>
+            <div class="app-body">
+              <div class="prop">
+                <div class="ph"><span class="tag">新着</span></div>
+                <div class="meta">
+                  <div class="price">¥980万</div>
+                  <div class="addr">中標津町 東5条南 ／ 4LDK</div>
+                </div>
+              </div>
+              <div class="prop">
+                <div class="ph gold"><span class="tag empty">空き家</span></div>
+                <div class="meta">
+                  <div class="price">査定受付中</div>
+                  <div class="addr">別海町 ／ 相続物件のご相談</div>
+                </div>
+              </div>
+            </div>
+            <div class="app-tabs">
+              <span class="tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg></span>
+              <span class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span>
+              <span class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 22l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg></span>
+              <span class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
+            </div>
+          </div>
+          <!-- TODO: ここまで -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+<!-- ====================== ③ 課題（ISSUE） ====================== -->
+<section class="bg-paper" id="problem">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Issue</span>
+      <h2 class="sec-title">いまの不動産業務に、こんな“見えない手間”はありませんか。</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="issue-grid">
+      <article class="issue-card reveal">
+        <div class="no">01</div>
+        <h3>同じ物件を何度も入力</h3>
+        <p>自社・SUUMO・アットホームへ同じ情報を手入力。1物件に何度も同じ作業が発生し、時間が静かに溶けていく。</p>
+      </article>
+      <article class="issue-card reveal">
+        <div class="no">02</div>
+        <h3>空き家相談の取りこぼし</h3>
+        <p>「売れるか分からない」で放置される相続空き家。気軽に査定を頼める入口がなく、相談前に離脱している。</p>
+      </article>
+      <article class="issue-card reveal">
+        <div class="no">03</div>
+        <h3>紙とExcelに頼った管理</h3>
+        <p>チラシ作成・顧客台帳・追客がバラバラ。担当者の頭の中に情報があり、属人的で引き継ぎにくい。</p>
+      </article>
+      <article class="issue-card reveal">
+        <div class="no">04</div>
+        <h3>遠方客への対応力不足</h3>
+        <p>釧路・道外からの移住やUターン需要に、内見や情報提供で十分に応えきれていない。</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== ④ コンセプト（CONCEPT） ====================== -->
+<section class="bg-navy concept" id="concept">
+  <div class="glow"></div>
+  <div class="container">
+    <div class="concept-grid">
+      <div class="reveal">
+        <span class="eyebrow on-dark">Concept</span>
+        <h2>二つの画面、ひとつの<span class="gold-text">データ</span>。</h2>
+        <p class="concept-lead">社内の物件管理ソフトと、お客様向けの公開アプリを、同じ土台の上で動かします。社内で一度登録すれば、そのままお客様のアプリに反映。バラバラだった業務が、一本の流れになります。</p>
+      </div>
+      <div class="concept-brand reveal">
+        <div class="big">Risaie Connect</div>
+        <div class="sub">リサイエ コネクト（仮称）</div>
+        <div class="pills">
+          <span class="pill">社内物件管理</span>
+          <span class="pill">お客様アプリ</span>
+          <span class="pill">AI査定・接客</span>
+          <span class="pill">地域密着</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== ⑤ 全体像（STRUCTURE） ====================== -->
+<section class="bg-paper-2">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Structure</span>
+      <h2 class="sec-title">全体像 ― 入力は一度きり。</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="struct-grid">
+      <div class="struct-col staff reveal">
+        <div class="role">FOR STAFF</div>
+        <div class="name">社内物件管理</div>
+        <ul>
+          <li>物件の登録・編集・写真管理</li>
+          <li>公開・非公開の切り替え</li>
+          <li>売出中→申込→成約のステータス管理</li>
+          <li>問い合わせ・査定依頼の受信箱</li>
+        </ul>
+      </div>
+      <div class="struct-col center reveal">
+        <div class="db-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>
+        </div>
+        <div class="role">ONE DATABASE</div>
+        <div class="name">共通データ基盤</div>
+        <p>登録した瞬間に両方へ反映</p>
+        <div class="arrows">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </div>
+      <div class="struct-col cust reveal">
+        <div class="role">FOR CUSTOMER</div>
+        <div class="name">お客様アプリ</div>
+        <ul>
+          <li>エリア物件検索・地図表示</li>
+          <li>新着物件のプッシュ通知</li>
+          <li>空き家かんたん査定</li>
+          <li>内見予約・お気に入り</li>
+        </ul>
+      </div>
+    </div>
+    <p class="struct-cap reveal">社内で<strong>一度入力</strong>すれば、お客様アプリにそのまま掲載。<strong>二重入力をなくす</strong>ことが、この仕組みの一番の価値です。</p>
+  </div>
+</section>
+
+<!-- ====================== ⑥ 機能（FEATURE） ====================== -->
+<section class="bg-paper" id="features">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Feature</span>
+      <h2 class="sec-title">できることは、ぜんぶ。</h2>
+      <div class="rule"></div>
+    </div>
+
+    <!-- 01 売主を、もっと取る -->
+    <div class="feat-group">
+      <div class="feat-head reveal">
+        <div class="feat-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+        </div>
+        <span class="gno">01</span>
+        <span class="gname">売主を、もっと取る</span>
+      </div>
+      <div class="feat-cards">
+        <article class="feat-card reveal"><div class="ttl"><h4>AI空き家かんたん査定</h4></div><p>写真と住所を入れるだけで概算の査定レンジを即提示。周辺の成約事例から算出し、相談へつなげます。</p></article>
+        <article class="feat-card reveal"><div class="ttl"><h4>相続シミュレーター</h4></div><p>相続した不動産の概算と「売る／貸す／持ち続ける」の比較。空き家の多くは相続が起点。最初の入口に。</p></article>
+        <article class="feat-card reveal"><div class="ttl"><h4>匿名査定</h4></div><p>「会社に知られず概算だけ知りたい」層を取りこぼさない。問い合わせ前のハードルを下げます。</p></article>
+        <article class="feat-card reveal"><div class="ttl"><h4>住み替えシミュレーター</h4></div><p>今の家がいくらで売れて、次にどんな物件が買えるか。住み替え検討層の背中をそっと押します。</p></article>
+      </div>
+    </div>
+
+    <!-- 02 買主・移住者を、惹きつける -->
+    <div class="feat-group">
+      <div class="feat-head reveal">
+        <div class="feat-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <span class="gno">02</span>
+        <span class="gname">買主・移住者を、惹きつける</span>
+      </div>
+      <div class="feat-cards">
+        <article class="feat-card reveal"><div class="ttl"><h4>地図検索</h4></div><p>中標津・別海・釧路の物件をマップにピン表示。エリアから直感的に探せます。</p></article>
+        <article class="feat-card reveal"><div class="ttl"><h4>生活情報レイヤー</h4><span class="tag">差別化</span></div><p>物件に学校区・スーパー・病院・就農情報を重ねて表示。移住検討で最も気にされる部分で、他社にない強み。</p></article>
+        <article class="feat-card reveal"><div class="ttl"><h4>お気に入り＋値下げ通知</h4></div><p>気になる物件を保存。価格が下がったらプッシュでお知らせし、再来訪を生みます。</p></article>
+        <article class="feat-card reveal"><div class="ttl"><h4>内見動画・360°ビュー</h4></div><p>物件ごとに動画や360°を掲載。遠方のお客様も現地に行く前に雰囲気をつかめます。</p></article>
+      </div>
+    </div>
+
+    <!-- 03 社内の仕事を、軽くする -->
+    <div class="feat-group">
+      <div class="feat-head reveal">
+        <div class="feat-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        </div>
+        <span class="gno">03</span>
+        <span class="gname">社内の仕事を、軽くする</span>
+      </div>
+      <div class="feat-cards">
+        <article class="feat-card reveal"><div class="ttl"><h4>ポータル一括出力</h4><span class="tag">本命</span></div><p>一度の登録でSUUMO・アットホーム向けのデータを書き出し。二重入力をなくす、現場に一番効く機能。</p></article>
+        <article class="feat-card reveal"><div class="ttl"><h4>チラシ自動生成</h4></div><p>登録データからPDFチラシをワンクリック作成。地域でいまも効くチラシ営業を、手間なく。</p></article>
+        <article class="feat-card reveal"><div class="ttl"><h4>反響・追客CRM</h4></div><p>問い合わせを一元管理し、追客のタイミングをリマインド。対応漏れを防ぎます。</p></article>
+        <article class="feat-card reveal"><div class="ttl"><h4>売上ダッシュボード</h4></div><p>問い合わせ数・内見数・成約の動きを可視化。月次の状況がひと目で分かります。</p></article>
+      </div>
+    </div>
+
+    <!-- 04 AIで、ひとり分はたらく -->
+    <div class="feat-group">
+      <div class="feat-head reveal">
+        <div class="feat-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>
+        </div>
+        <span class="gno">04</span>
+        <span class="gname">AIで、ひとり分はたらく</span>
+      </div>
+      <div class="feat-cards">
+        <article class="feat-card reveal"><div class="ttl"><h4>AI物件紹介文 生成</h4></div><p>物件情報を入れるだけで魅力的な紹介文を自動作成。入力の手間が大きく減り、効果を実感しやすい機能。</p></article>
+        <article class="feat-card reveal"><div class="ttl"><h4>AIチャット一次接客</h4></div><p>アプリ内で24時間、問い合わせの一次対応と物件提案。営業時間外の機会を逃しません。</p></article>
+        <article class="feat-card reveal"><div class="ttl"><h4>空き家 活用提案AI</h4></div><p>「民泊向き」「解体して更地が有利」など、空き家の活かし方を提案。相談の幅を広げます。</p></article>
+        <article class="feat-card reveal"><div class="ttl"><h4>写真AI補正</h4></div><p>暗く写った室内写真を自動で明るく整える。撮り直しの手間なく、見栄えを底上げします。</p></article>
+      </div>
+    </div>
+
+    <!-- 05 地域に、深く根を張る -->
+    <div class="feat-group">
+      <div class="feat-head reveal">
+        <div class="feat-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg>
+        </div>
+        <span class="gno">05</span>
+        <span class="gname">地域に、深く根を張る</span>
+      </div>
+      <div class="feat-cards">
+        <article class="feat-card reveal"><div class="ttl"><h4>自治体・空き家バンク連携</h4><span class="tag">将来性</span></div><p>中標津・別海は過疎で空き家対策が行政課題。バンクと連携すれば、行政案件への横展開も視野に入ります。</p></article>
+        <article class="feat-card reveal"><div class="ttl"><h4>オーナー向けマイページ</h4></div><p>売主が売却の進捗を確認でき、賃貸オーナーには管理レポートを提供。継続的な関係づくりに効きます。</p></article>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ====================== ⑦ Before / After（IMPACT） ====================== -->
+<section class="bg-navy">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow on-dark">Impact</span>
+      <h2 class="sec-title on-dark">導入で、現場はこう変わる。</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="ba-grid">
+      <div class="ba-card ba-before reveal">
+        <div class="ba-label">BEFORE</div>
+        <ul>
+          <li><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span>同じ物件を3サイトに手入力</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span>空き家の相談は電話か来店のみ</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span>チラシは毎回イチから作成</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span>遠方客には資料を郵送・メール</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span>反響の管理は担当者の記憶頼み</li>
+        </ul>
+      </div>
+      <div class="ba-card ba-after reveal">
+        <div class="ba-label">AFTER</div>
+        <ul>
+          <li><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>一度の登録で各サイトへ出力</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>アプリから写真を送るだけで査定相談</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>データから自動でチラシ生成</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>内見動画と360°で遠方でも内見</li>
+          <li><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>反響から追客までアプリで一元管理</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== ⑧ 費用（PLAN & COST） ====================== -->
+<section class="bg-paper-2" id="pricing">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Plan &amp; Cost</span>
+      <h2 class="sec-title">費用 ― 作って終わり、ではなく。</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="cost-grid">
+      <div class="cost-main reveal">
+        <div class="lbl">初期制作費（一括）</div>
+        <div class="price">¥800,000〜<span style="font-size:.42em;font-weight:500;">（税別）</span></div>
+        <p>社内物件管理＋お客様アプリの一式を、企画から開発・公開まで内製で対応。外注を挟まないため、この規模でフル機能をご提案できます。</p>
+      </div>
+      <div class="cost-side">
+        <div class="cost-card reveal">
+          <div class="lbl">RUNNING COST</div>
+          <h4>ストア掲載料のみ</h4>
+          <p>App Store 年 約15,000円／Google Play 25ドル（初回のみ）。サーバー等は想定利用枠内でほぼ0円。</p>
+        </div>
+        <div class="cost-card reveal">
+          <div class="lbl">MAINTENANCE（任意）</div>
+          <h4>月額 15,000円〜</h4>
+          <p>公開後の軽微な修正・運用サポート・機能追加のご相談に対応します。</p>
+        </div>
+      </div>
+    </div>
+    <p class="cost-note reveal">※ 公開名義（御社／弊社）により法人登録の手続きが必要な場合があります。名義・年間掲載料のご負担区分は契約前に明記いたします。</p>
+  </div>
+</section>
+
+<!-- ====================== ⑨ 導入の流れ（FLOW） ====================== -->
+<section class="bg-paper">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Flow</span>
+      <h2 class="sec-title">導入の流れ。</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="flow-grid">
+      <div class="flow-card reveal">
+        <div class="dot">1</div>
+        <h4>ヒアリング</h4>
+        <p>業務の流れと、優先したい機能をうかがいます。</p>
+        <span class="term">約1週間</span>
+      </div>
+      <div class="flow-card reveal">
+        <div class="dot">2</div>
+        <h4>設計・お見積り</h4>
+        <p>機能の範囲を決め、画面構成と費用を確定します。</p>
+        <span class="term">約1〜2週間</span>
+      </div>
+      <div class="flow-card reveal">
+        <div class="dot">3</div>
+        <h4>開発・確認</h4>
+        <p>社内管理とアプリを内製で開発。途中でご確認いただきます。</p>
+        <span class="term">約1〜2ヶ月</span>
+      </div>
+      <div class="flow-card reveal">
+        <div class="dot">4</div>
+        <h4>公開・運用</h4>
+        <p>ストア公開後、運用サポートで育てていきます。</p>
+        <span class="term">継続</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== ⑩ CTA（NEXT STEP） ====================== -->
+<section class="cta grid-bg" id="cta">
+  <div class="container">
+    <span class="eyebrow on-dark reveal">Next Step</span>
+    <h2 class="reveal">まずは、機能を一つずつ。<br>育てるアプリとして。</h2>
+    <p class="reveal">全機能を一度に作る必要はありません。効果の大きい機能から始め、反応を見ながら育てていく進め方をご提案します。中標津から、不動産の体験を一歩先へ。</p>
+    <!-- TODO: 問い合わせ先（フォーム/LINE/電話） -->
+    <a href="#" class="btn btn-gold reveal">
+      導入のご相談はこちら
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ====================== ⑪ フッター ====================== -->
+<footer class="bg-navy-deep footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="brand-name">Risaie Connect</div>
+        <p>中標津の不動産業務を、社内管理からお客様アプリまでひとつにする不動産DXアプリ。</p>
+        <div class="note">※ Risaie Connect は仮称です。</div>
+      </div>
+      <div class="footer-links">
+        <div class="col">
+          <h5>CONTENTS</h5>
+          <a href="#problem">課題</a>
+          <a href="#concept">特徴</a>
+          <a href="#features">機能</a>
+          <a href="#pricing">費用</a>
+        </div>
+        <div class="col">
+          <h5>CONTACT</h5>
+          <!-- TODO: 問い合わせ先（フォーム/LINE/電話） -->
+          <a href="#cta">導入のご相談</a>
+          <a href="#cta">お問い合わせ</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Risaie Connect ／ 不動産DXアプリ ご提案</span>
+      <span>ご提案 ViFight ／ 久保 歩夢　Web・映像・AIソリューション</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* =======================================================================
+   ナビ：scrollY>40 で白地＋blur＋影に変化
+   ===================================================================== */
+(function(){
+  var nav = document.getElementById('nav');
+  function onScroll(){
+    if(window.scrollY > 40){ nav.classList.add('scrolled'); }
+    else { nav.classList.remove('scrolled'); }
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+})();
+
+/* =======================================================================
+   スクロールリビール（IntersectionObserver）
+   prefers-reduced-motion:reduce の時は何もしない
+   ===================================================================== */
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var els = document.querySelectorAll('.reveal');
+  if(reduce || !('IntersectionObserver' in window)){
+    els.forEach(function(el){ el.classList.add('is-visible'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        e.target.classList.add('is-visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, {threshold:0.12});
+  els.forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>
