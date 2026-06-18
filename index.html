@@ -11,23 +11,26 @@
 <!-- =======================================================================
      Risaie Connect — お客様向けアプリ（物件検索）デモ
      リンクを開くと、そのままアプリが起動する想定の全画面モバイルUI。
-     単一ファイル（CSS/JSインライン、外部依存はGoogle Fontsのみ）。
-     ・提案サイト（LP）は lp.html に保存しています。
-     ・物件画像はCSSプレースホルダ。将来 実写真に差し替え可能。<!-- TODO -->
-     ・データ／お気に入りはメモリ保持（localStorage不使用）。
+     単一HTML（CSS/JSインライン）＋ manifest.json / icon.svg（PWA用）。
+     外部依存は Google Fonts のみ。提案サイト(LP)は lp.html に保存。
+     物件写真はCSSプレースホルダ。将来 実写真に差し替え可能。<!-- TODO -->
+     データ／お気に入りはメモリ保持（localStorage不使用）。
      ===================================================================== -->
 <title>Risaie Connect ｜ 中標津・別海・釧路の物件をさがす</title>
-<meta name="description" content="中標津・別海・釧路の不動産をさがす、お客様向けアプリ。物件検索・地図・空き家かんたん査定・お気に入り。">
+<meta name="description" content="中標津・別海・釧路の不動産をさがす、お客様向けアプリ。物件検索・地図・空き家かんたん査定・お気に入り・内見予約。">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@600;700&display=swap" rel="stylesheet">
 <style>
 /* ===================== トークン ===================== */
 :root{
   --navy:#13223d; --navy-2:#1d3252; --navy-deep:#0e1a30;
   --gold:#a9823b; --gold-2:#c6a25a;
   --paper:#f6f3ec; --paper-2:#efeadf; --white:#fff;
-  --ink:#23262b; --muted:#7c8088; --line:#ececec; --line-2:#e3ddd0;
+  --ink:#23262b; --muted:#7c8088; --line:#ededed; --line-2:#e3ddd0;
   --sh-sm:0 2px 10px rgba(19,34,61,.06);
   --sh-md:0 8px 24px rgba(19,34,61,.10);
   --sh-lg:0 18px 50px rgba(19,34,61,.22);
@@ -40,40 +43,30 @@
 html,body{margin:0;height:100%;}
 body{
   font-family:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
-  font-weight:400;color:var(--ink);line-height:1.7;
-  background:var(--navy-deep);
-  -webkit-font-smoothing:antialiased;
-  display:flex;justify-content:center;align-items:stretch;
+  font-weight:400;color:var(--ink);line-height:1.7;background:var(--navy-deep);
+  -webkit-font-smoothing:antialiased;display:flex;justify-content:center;align-items:stretch;
   overscroll-behavior:none;
 }
 h1,h2,h3,h4{font-family:"Noto Serif JP",serif;margin:0;font-weight:700;line-height:1.3;}
 p{margin:0;}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+input,select{font-family:inherit;}
 ul{margin:0;padding:0;list-style:none;}
 svg{display:block;}
 img{display:block;max-width:100%;}
 
 /* ===================== アプリ・シェル ===================== */
-.app{
-  position:relative;width:100%;max-width:480px;
-  height:100vh;height:100dvh;
-  background:var(--paper);
-  display:flex;flex-direction:column;overflow:hidden;
-  box-shadow:var(--sh-lg);
-}
-/* デスクトップ：端末風フレーム */
+.app{position:relative;width:100%;max-width:480px;height:100vh;height:100dvh;
+  background:var(--paper);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--sh-lg);}
 @media (min-width:520px){
   body{padding:26px 0;}
   .app{height:calc(100vh - 52px);max-height:920px;border-radius:34px;border:9px solid #0b1426;}
 }
 
 /* ===================== トップバー ===================== */
-.topbar{
-  flex:none;background:linear-gradient(150deg,var(--navy-2),var(--navy));color:#fff;
-  padding:calc(14px + var(--safe-t)) 18px 14px;
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  z-index:20;position:relative;
-}
+.topbar{flex:none;background:linear-gradient(150deg,var(--navy-2),var(--navy));color:#fff;
+  padding:calc(14px + var(--safe-t)) 18px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  z-index:20;position:relative;}
 .topbar .brand{display:flex;flex-direction:column;line-height:1.15;}
 .topbar .brand .nm{font-family:"Noto Serif JP",serif;font-size:1.12rem;letter-spacing:.03em;}
 .topbar .brand .loc{display:flex;align-items:center;gap:4px;font-size:.66rem;color:var(--gold-2);letter-spacing:.04em;margin-top:2px;}
@@ -87,35 +80,51 @@ img{display:block;max-width:100%;}
 .screen{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;padding-bottom:18px;}
 .screen.active{display:block;animation:fade .35s ease;}
 @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
-.sec-pad{padding:16px 16px 0;}
 .scr-title{font-size:1.18rem;color:var(--navy);padding:18px 16px 4px;}
 .scr-sub{font-size:.78rem;color:var(--muted);padding:0 16px 8px;}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;padding:18px 16px 8px;}
+.sec-h h3{font-size:1.04rem;color:var(--navy);}
+.sec-h .more{font-size:.74rem;color:var(--gold);font-weight:500;}
 
 /* ===================== 検索画面 ===================== */
-.searchbar{
-  margin:14px 16px 0;display:flex;align-items:center;gap:9px;background:#fff;
-  border-radius:12px;padding:12px 14px;box-shadow:var(--sh-sm);border:1px solid var(--line);
-}
+.searchbar{margin:14px 16px 0;display:flex;align-items:center;gap:9px;background:#fff;border-radius:12px;
+  padding:12px 14px;box-shadow:var(--sh-sm);border:1px solid var(--line);}
 .searchbar svg{width:17px;height:17px;color:var(--gold);flex:none;}
 .searchbar input{border:none;outline:none;font-size:.9rem;width:100%;color:var(--ink);background:transparent;}
 .searchbar input::placeholder{color:var(--muted);}
+.promo{margin:14px 16px 0;border-radius:16px;overflow:hidden;position:relative;color:#fff;
+  background:linear-gradient(135deg,var(--navy-2),var(--navy-deep));padding:20px 20px;box-shadow:var(--sh-md);}
+.promo::after{content:"";position:absolute;right:-50px;top:-50px;width:170px;height:170px;border-radius:50%;
+  background:radial-gradient(circle,rgba(198,162,90,.32),transparent 65%);}
+.promo .e{font-size:.62rem;letter-spacing:.22em;color:var(--gold-2);font-weight:500;position:relative;z-index:2;}
+.promo h2{font-size:1.16rem;margin:7px 0 6px;position:relative;z-index:2;line-height:1.45;}
+.promo p{font-size:.76rem;color:rgba(255,255,255,.8);position:relative;z-index:2;}
+.promo .go{margin-top:12px;display:inline-flex;align-items:center;gap:7px;background:linear-gradient(120deg,var(--gold),var(--gold-2));
+  color:#fff;font-size:.78rem;font-weight:700;padding:9px 16px;border-radius:8px;position:relative;z-index:2;}
+.promo .go svg{width:14px;height:14px;}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:14px 16px 4px;scrollbar-width:none;}
 .chips::-webkit-scrollbar{display:none;}
-.chip{flex:none;padding:8px 16px;border-radius:999px;font-size:.8rem;font-weight:500;
-  background:#fff;border:1px solid var(--line-2);color:#55606e;transition:.2s;white-space:nowrap;}
+.chip{flex:none;padding:8px 16px;border-radius:999px;font-size:.8rem;font-weight:500;background:#fff;
+  border:1px solid var(--line-2);color:#55606e;transition:.2s;white-space:nowrap;}
 .chip.on{background:var(--navy);color:#fff;border-color:var(--navy);}
-.result-row{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 2px;}
-.result-row .cnt{font-size:.78rem;color:var(--muted);}
-.result-row .cnt b{color:var(--gold);font-family:"Noto Serif JP",serif;font-size:1rem;}
-.result-row .sort{display:flex;align-items:center;gap:5px;font-size:.78rem;color:#55606e;font-weight:500;}
-.result-row .sort svg{width:14px;height:14px;}
+.result-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 2px;}
+.result-row .cnt{font-size:.8rem;color:#55606e;}
+.result-row .cnt b{color:var(--gold);font-family:"Noto Serif JP",serif;font-size:1.04rem;margin-right:1px;}
+.result-row .cnt i{font-style:normal;color:var(--muted);font-size:.76rem;}
+.filter-btn{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--navy);font-weight:500;
+  background:#fff;border:1px solid var(--line-2);padding:7px 13px;border-radius:999px;box-shadow:var(--sh-sm);}
+.filter-btn svg{width:14px;height:14px;}
+.hrow{display:flex;gap:12px;overflow-x:auto;padding:4px 16px 6px;scrollbar-width:none;}
+.hrow::-webkit-scrollbar{display:none;}
+.hrow .pcard{flex:none;width:218px;}
+.hrow .pcard .pcard-img{height:120px;}
 
 /* ===================== 物件カード ===================== */
 .plist{padding:8px 16px 0;display:flex;flex-direction:column;gap:14px;}
-.pcard{background:#fff;border-radius:15px;overflow:hidden;box-shadow:var(--sh-sm);border:1px solid var(--line);transition:transform .2s;}
+.pcard{background:#fff;border-radius:15px;overflow:hidden;box-shadow:var(--sh-sm);border:1px solid var(--line);transition:transform .18s,box-shadow .25s;}
 .pcard:active{transform:scale(.985);}
 .pcard-img{height:158px;position:relative;}
-/* TODO: 背景グラデは将来 実写真(<img>)に差し替え可能 */
+/* 画像プレースホルダ（実写真に差し替え可能） */
 .g1{background:linear-gradient(135deg,#cdd6e2,#9fb0c6);}
 .g2{background:linear-gradient(135deg,#e3cf9f,#c6a25a);}
 .g3{background:linear-gradient(135deg,#bcd0c4,#8fae9c);}
@@ -124,165 +133,235 @@ img{display:block;max-width:100%;}
 .g6{background:linear-gradient(135deg,#c6cdd6,#97a3b3);}
 .g7{background:linear-gradient(135deg,#e0c9b0,#c19e7a);}
 .g8{background:linear-gradient(135deg,#b9cdd8,#8aa9b8);}
-.pcard-img .photo-ico{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.55);}
-.pcard-img .photo-ico svg{width:38px;height:38px;}
-.tag{position:absolute;top:11px;left:11px;font-size:.66rem;font-weight:700;letter-spacing:.04em;
-  padding:4px 11px;border-radius:999px;color:#fff;background:rgba(19,34,61,.86);}
+.gr1{background:linear-gradient(135deg,#ece4d4,#cdbfa1);}
+.gr2{background:linear-gradient(135deg,#dde3e8,#b9c4ce);}
+.gr3{background:linear-gradient(135deg,#dad2c3,#b0a78d);}
+.pcard-img .photo-ico{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);}
+.pcard-img .photo-ico svg{width:36px;height:36px;}
+.pcard-img .pn{position:absolute;bottom:9px;right:10px;font-size:.64rem;color:#fff;background:rgba(19,34,61,.55);
+  padding:2px 8px;border-radius:999px;display:flex;align-items:center;gap:4px;}
+.pcard-img .pn svg{width:11px;height:11px;}
+.tag{position:absolute;top:11px;left:11px;font-size:.66rem;font-weight:700;letter-spacing:.04em;padding:4px 11px;border-radius:999px;color:#fff;background:rgba(19,34,61,.86);}
 .tag.new{background:var(--navy);}
 .tag.empty{background:var(--gold);}
 .tag.down{background:var(--red);}
 .tag.move{background:var(--green);}
-.heart{position:absolute;top:9px;right:9px;width:36px;height:36px;border-radius:50%;
-  background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-sm);}
-.heart svg{width:18px;height:18px;color:#9aa0a8;transition:.2s;}
+.heart{position:absolute;top:9px;right:9px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.92);
+  display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-sm);}
+.heart svg{width:18px;height:18px;color:#9aa0a8;transition:transform .2s,color .2s;}
 .heart.on svg{color:var(--red);fill:var(--red);}
-.heart:active{transform:scale(.86);}
+.heart:active svg{transform:scale(.8);}
 .pcard-body{padding:13px 15px 15px;}
 .pcard-price{font-family:"Noto Serif JP",serif;font-weight:700;font-size:1.32rem;color:var(--navy);line-height:1.2;}
-.pcard-price small{font-size:.62em;color:var(--gold);margin-left:6px;font-family:"Noto Sans JP";font-weight:500;}
+.pcard-price small{font-size:.6em;color:var(--gold);margin-left:6px;font-family:"Noto Sans JP";font-weight:500;}
 .pcard-addr{font-size:.86rem;color:#3c4654;margin-top:5px;font-weight:500;}
 .pcard-meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px;}
 .pcard-meta span{font-size:.72rem;color:#55606e;background:var(--paper-2);padding:3px 9px;border-radius:6px;}
-.empty-state{text-align:center;color:var(--muted);padding:64px 30px;font-size:.88rem;}
+.empty-state{text-align:center;color:var(--muted);padding:60px 30px;font-size:.88rem;line-height:1.8;}
 .empty-state .ico{width:54px;height:54px;border-radius:50%;background:var(--paper-2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:var(--gold);}
 .empty-state .ico svg{width:26px;height:26px;}
 
 /* ===================== 地図画面 ===================== */
-.map-wrap{position:relative;height:62%;min-height:300px;overflow:hidden;
+.map-wrap{position:relative;height:60%;min-height:300px;overflow:hidden;
   background:
     repeating-linear-gradient(0deg,transparent 0 38px,rgba(19,34,61,.045) 38px 40px),
     repeating-linear-gradient(90deg,transparent 0 38px,rgba(19,34,61,.045) 38px 40px),
     linear-gradient(160deg,#e9ede6,#dbe2dc);}
-.map-wrap::before{content:"";position:absolute;inset:0;
+.map-wrap::before{content:"";position:absolute;inset:0;pointer-events:none;
   background:
-    linear-gradient(115deg,transparent 46%,rgba(120,150,120,.16) 46% 54%,transparent 54%),
-    radial-gradient(circle at 78% 30%,rgba(120,160,200,.22),transparent 26%);}
+    linear-gradient(115deg,transparent 45%,rgba(120,150,120,.16) 45% 55%,transparent 55%),
+    linear-gradient(60deg,transparent 60%,rgba(150,170,140,.12) 60% 66%,transparent 66%),
+    radial-gradient(circle at 80% 26%,rgba(120,160,200,.24),transparent 24%);}
+.map-label{position:absolute;font-size:.7rem;font-weight:700;color:rgba(19,34,61,.4);letter-spacing:.1em;pointer-events:none;font-family:"Noto Serif JP",serif;}
+.me-dot{position:absolute;width:16px;height:16px;border-radius:50%;background:#2f7df5;border:3px solid #fff;box-shadow:0 0 0 6px rgba(47,125,245,.18);transform:translate(-50%,-50%);}
 .pin{position:absolute;transform:translate(-50%,-100%);z-index:3;}
-.pin .bub{background:var(--navy);color:#fff;font-family:"Noto Serif JP",serif;font-size:.74rem;font-weight:700;
-  padding:5px 10px;border-radius:999px;box-shadow:var(--sh-md);white-space:nowrap;position:relative;border:1.5px solid #fff;}
+.pin .bub{background:var(--navy);color:#fff;font-family:"Noto Serif JP",serif;font-size:.74rem;font-weight:700;padding:5px 10px;border-radius:999px;box-shadow:var(--sh-md);white-space:nowrap;position:relative;border:1.5px solid #fff;transition:transform .18s;}
 .pin.empty .bub{background:var(--gold);}
-.pin.active .bub{background:var(--gold-2);transform:scale(1.08);}
-.pin .bub::after{content:"";position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);
-  border:5px solid transparent;border-top-color:inherit;}
+.pin .bub::after{content:"";position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);border:5px solid transparent;border-top-color:#13223d;}
 .pin.empty .bub::after{border-top-color:var(--gold);}
-.map-hint{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:4;
-  background:rgba(255,255,255,.9);backdrop-filter:blur(4px);font-size:.72rem;color:#55606e;
-  padding:7px 14px;border-radius:999px;box-shadow:var(--sh-sm);}
-.map-cards{padding:14px 16px 4px;display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;}
+.pin.active{z-index:5;}
+.pin.active .bub{background:var(--gold-2);transform:scale(1.12);}
+.pin.active .bub::after{border-top-color:var(--gold-2);}
+.map-ctrl{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:1px;border-radius:10px;overflow:hidden;box-shadow:var(--sh-md);z-index:4;}
+.map-ctrl button{width:38px;height:38px;background:#fff;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+.map-ctrl button+button{border-top:1px solid var(--line);}
+.map-ctrl button svg{width:18px;height:18px;}
+.map-cards{padding:14px 16px 4px;display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity;}
 .map-cards::-webkit-scrollbar{display:none;}
-.map-cards .pcard{flex:none;width:230px;}
+.map-cards .pcard{flex:none;width:230px;scroll-snap-align:center;}
 .map-cards .pcard-img{height:118px;}
 
 /* ===================== 査定画面 ===================== */
 .assess-hero{background:linear-gradient(150deg,var(--navy-2),var(--navy-deep));color:#fff;padding:26px 20px 24px;}
-.assess-hero .eyebrow{font-size:.66rem;letter-spacing:.24em;color:var(--gold-2);font-weight:500;}
+.assess-hero .e{font-size:.66rem;letter-spacing:.24em;color:var(--gold-2);font-weight:500;}
 .assess-hero h2{font-size:1.4rem;margin:8px 0 8px;}
-.assess-hero p{font-size:.82rem;color:rgba(255,255,255,.78);font-weight:400;}
+.assess-hero p{font-size:.82rem;color:rgba(255,255,255,.78);}
+.steps{display:flex;gap:6px;margin-top:18px;}
+.steps .st{flex:1;text-align:center;font-size:.64rem;color:rgba(255,255,255,.55);}
+.steps .st .b{height:4px;border-radius:99px;background:rgba(255,255,255,.18);margin-bottom:6px;}
+.steps .st.on .b{background:var(--gold-2);}
+.steps .st.on{color:var(--gold-2);}
 .assess-form{padding:18px 16px 0;display:flex;flex-direction:column;gap:16px;}
 .field label{display:block;font-size:.78rem;font-weight:700;color:var(--navy);margin-bottom:7px;}
-.photo-btn{width:100%;border:1.5px dashed var(--line-2);border-radius:13px;background:#fff;
-  padding:22px;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--gold);font-size:.8rem;font-weight:500;}
+.photo-btn{width:100%;border:1.5px dashed var(--line-2);border-radius:13px;background:#fff;padding:22px;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--gold);font-size:.8rem;font-weight:500;}
 .photo-btn svg{width:30px;height:30px;}
 .photo-btn.filled{border-style:solid;border-color:var(--gold);color:var(--navy);background:var(--paper-2);}
-.field input,.field select{width:100%;padding:13px 14px;border:1px solid var(--line-2);border-radius:11px;
-  font-size:.9rem;background:#fff;outline:none;color:var(--ink);font-family:inherit;}
+.field input,.field select{width:100%;padding:13px 14px;border:1px solid var(--line-2);border-radius:11px;font-size:.9rem;background:#fff;outline:none;color:var(--ink);}
 .field input:focus,.field select:focus{border-color:var(--gold);}
-.assess-submit{width:100%;padding:16px;border-radius:11px;background:linear-gradient(120deg,var(--gold),var(--gold-2));
-  color:#fff;font-weight:700;font-size:.95rem;letter-spacing:.04em;box-shadow:var(--sh-md);margin-top:4px;
-  display:flex;align-items:center;justify-content:center;gap:8px;}
+.assess-submit{width:100%;padding:16px;border-radius:11px;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#fff;font-weight:700;font-size:.95rem;letter-spacing:.04em;box-shadow:var(--sh-md);margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;}
 .assess-submit svg{width:17px;height:17px;}
 .assess-result{margin:18px 16px 0;background:#fff;border-radius:15px;box-shadow:var(--sh-md);padding:24px 22px;display:none;border:1px solid var(--line);}
 .assess-result.show{display:block;animation:fade .4s ease;}
 .assess-result .lbl{font-size:.7rem;letter-spacing:.2em;color:var(--gold);font-weight:500;}
 .assess-result .range{font-family:"Noto Serif JP",serif;font-weight:700;font-size:1.85rem;color:var(--navy);margin:8px 0 6px;}
-.assess-result .note{font-size:.78rem;color:var(--muted);line-height:1.7;}
 .assess-result .bar{height:8px;border-radius:99px;background:var(--paper-2);margin:16px 0 6px;position:relative;overflow:hidden;}
 .assess-result .bar i{position:absolute;left:18%;right:24%;top:0;bottom:0;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--gold-2));}
 .assess-result .scale{display:flex;justify-content:space-between;font-size:.66rem;color:var(--muted);}
+.assess-result .note{font-size:.78rem;color:var(--muted);line-height:1.7;margin-top:12px;}
 .assess-result .cta{margin-top:18px;width:100%;padding:14px;border-radius:10px;background:var(--navy);color:#fff;font-weight:700;font-size:.88rem;}
-
-/* ===================== お気に入り画面 ===================== */
-.fav-head{padding:6px 16px 0;}
+.assess-extra{margin:14px 16px 0;background:var(--paper-2);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;}
+.assess-extra .ic{width:36px;height:36px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--gold);flex:none;box-shadow:var(--sh-sm);}
+.assess-extra .ic svg{width:19px;height:19px;}
+.assess-extra .tx{font-size:.78rem;color:#3c4654;}
+.assess-extra .tx b{color:var(--navy);}
 
 /* ===================== 物件詳細（オーバーレイ） ===================== */
-.detail{position:absolute;inset:0;background:var(--paper);z-index:40;transform:translateX(100%);
-  transition:transform .32s cubic-bezier(.2,.7,.2,1);display:flex;flex-direction:column;}
+.detail{position:absolute;inset:0;background:var(--paper);z-index:40;transform:translateX(100%);transition:transform .32s cubic-bezier(.2,.7,.2,1);display:flex;flex-direction:column;}
 .detail.open{transform:none;}
-.detail-hero{position:relative;height:280px;flex:none;}
-.detail-hero .back{position:absolute;top:calc(14px + var(--safe-t));left:14px;width:40px;height:40px;border-radius:50%;
-  background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-md);z-index:3;}
+.detail-hero{position:relative;height:288px;flex:none;background:#cdd6e2;}
+.gallery{position:absolute;inset:0;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;}
+.gallery::-webkit-scrollbar{display:none;}
+.gallery .slide{flex:none;width:100%;height:100%;scroll-snap-align:center;position:relative;}
+.gallery .slide .photo-ico{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);}
+.gallery .slide .photo-ico svg{width:42px;height:42px;}
+.gallery .slide .cap{position:absolute;left:14px;bottom:14px;font-size:.68rem;color:#fff;background:rgba(19,34,61,.55);padding:3px 10px;border-radius:999px;}
+.gdots{position:absolute;left:0;right:0;bottom:12px;display:flex;gap:6px;justify-content:center;z-index:3;}
+.gdots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);transition:.2s;}
+.gdots span.on{background:#fff;width:18px;border-radius:99px;}
+.detail-hero .back{position:absolute;top:calc(14px + var(--safe-t));left:14px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-md);z-index:4;}
 .detail-hero .back svg{width:20px;height:20px;color:var(--navy);}
-.detail-hero .heart{top:calc(14px + var(--safe-t));}
-.detail-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 18px calc(20px + var(--safe-b));}
-.detail-body .tagrow{display:flex;gap:8px;margin-bottom:10px;}
+.detail-hero .heart{top:calc(14px + var(--safe-t));z-index:4;}
+.detail-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 18px 24px;}
+.detail-body .tagrow{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
 .detail-body .tagrow .tag{position:static;}
 .detail-price{font-family:"Noto Serif JP",serif;font-weight:700;font-size:2rem;color:var(--navy);line-height:1.2;}
 .detail-addr{font-size:1rem;font-weight:700;color:var(--navy);margin-top:10px;}
-.detail-spec{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0;}
+.detail-spec{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0 4px;}
 .detail-spec .s{background:#fff;border:1px solid var(--line);border-radius:11px;padding:12px 8px;text-align:center;box-shadow:var(--sh-sm);}
 .detail-spec .s .k{font-size:.64rem;color:var(--muted);}
 .detail-spec .s .v{font-size:.92rem;font-weight:700;color:var(--navy);margin-top:3px;}
 .block-title{font-size:1rem;color:var(--navy);margin:22px 0 12px;display:flex;align-items:center;gap:8px;}
 .block-title .br{width:4px;height:16px;border-radius:2px;background:linear-gradient(var(--gold),var(--gold-2));}
 .detail-desc{font-size:.88rem;color:#3c4654;line-height:1.95;}
-/* 生活情報レイヤー */
+.equip{display:flex;flex-wrap:wrap;gap:8px;}
+.equip span{font-size:.76rem;color:#3c4654;background:#fff;border:1px solid var(--line-2);padding:6px 12px;border-radius:8px;box-shadow:var(--sh-sm);}
 .life{display:flex;flex-direction:column;gap:1px;background:var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--sh-sm);}
 .life .row{display:flex;align-items:center;gap:12px;background:#fff;padding:13px 15px;}
 .life .row .ic{width:32px;height:32px;border-radius:8px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;color:var(--gold);flex:none;}
 .life .row .ic svg{width:17px;height:17px;}
-.life .row .k{font-size:.74rem;color:var(--muted);width:74px;flex:none;}
+.life .row .k{font-size:.74rem;color:var(--muted);width:78px;flex:none;}
 .life .row .v{font-size:.84rem;color:#3c4654;font-weight:500;}
+.access-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--sh-sm);display:flex;gap:12px;align-items:flex-start;}
+.access-card .ic{width:34px;height:34px;border-radius:9px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;color:var(--gold);flex:none;}
+.access-card .ic svg{width:18px;height:18px;}
+.access-card .tx{font-size:.84rem;color:#3c4654;line-height:1.7;}
+.agent{display:flex;align-items:center;gap:14px;background:linear-gradient(150deg,var(--navy-2),var(--navy));color:#fff;border-radius:14px;padding:16px 18px;box-shadow:var(--sh-md);}
+.agent .av{width:50px;height:50px;border-radius:50%;background:rgba(198,162,90,.18);border:1px solid rgba(198,162,90,.5);display:flex;align-items:center;justify-content:center;color:var(--gold-2);flex:none;font-family:"Noto Serif JP",serif;font-weight:700;font-size:1.2rem;}
+.agent .nm{font-weight:700;font-size:.92rem;}
+.agent .ro{font-size:.7rem;color:var(--gold-2);margin-top:2px;letter-spacing:.04em;}
+.agent .call{margin-left:auto;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:9px 14px;font-size:.76rem;font-weight:700;display:flex;align-items:center;gap:6px;}
+.agent .call svg{width:14px;height:14px;}
 .detail-cta{flex:none;display:flex;gap:10px;padding:12px 16px calc(12px + var(--safe-b));background:#fff;border-top:1px solid var(--line);}
-.detail-cta button{flex:1;padding:15px;border-radius:11px;font-weight:700;font-size:.9rem;}
-.detail-cta .ghost{flex:none;width:56px;border:1px solid var(--line-2);color:var(--navy);display:flex;align-items:center;justify-content:center;}
+.detail-cta .ghost{flex:none;width:54px;border:1px solid var(--line-2);border-radius:11px;color:var(--navy);display:flex;align-items:center;justify-content:center;}
 .detail-cta .ghost svg{width:21px;height:21px;}
 .detail-cta .ghost.on svg{color:var(--red);fill:var(--red);}
-.detail-cta .primary{background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#fff;box-shadow:var(--sh-md);}
+.detail-cta .primary{flex:1;padding:15px;border-radius:11px;font-weight:700;font-size:.92rem;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#fff;box-shadow:var(--sh-md);}
 
 /* ===================== タブバー ===================== */
-.tabbar{flex:none;display:flex;background:#fff;border-top:1px solid var(--line);
-  padding-bottom:var(--safe-b);box-shadow:0 -2px 14px rgba(19,34,61,.05);z-index:20;}
+.tabbar{flex:none;display:flex;background:#fff;border-top:1px solid var(--line);padding-bottom:var(--safe-b);box-shadow:0 -2px 14px rgba(19,34,61,.05);z-index:20;}
 .tabbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;color:#aab0b8;height:var(--tabbar-h);justify-content:center;}
 .tabbtn svg{width:23px;height:23px;}
 .tabbtn .lbl{font-size:.62rem;font-weight:500;letter-spacing:.02em;}
 .tabbtn.on{color:var(--gold);}
 .tabbtn .fav-dot{position:relative;}
-.tabbtn .fav-dot .n{position:absolute;top:-4px;right:-9px;background:var(--red);color:#fff;font-size:.56rem;
-  font-weight:700;min-width:15px;height:15px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
+.tabbtn .fav-dot .n{position:absolute;top:-4px;right:-9px;background:var(--red);color:#fff;font-size:.56rem;font-weight:700;min-width:15px;height:15px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
+
+/* ===================== ボトムシート ===================== */
+.sheet-wrap{position:absolute;inset:0;z-index:50;display:none;}
+.sheet-wrap.open{display:block;}
+.sheet-bd{position:absolute;inset:0;background:rgba(10,18,30,.45);opacity:0;transition:opacity .3s;}
+.sheet-wrap.open .sheet-bd{opacity:1;}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--paper);border-radius:20px 20px 0 0;transform:translateY(100%);transition:transform .34s cubic-bezier(.2,.7,.2,1);max-height:90%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(20px + var(--safe-b));}
+.sheet-wrap.open .sheet{transform:none;}
+.grab{width:42px;height:4px;border-radius:99px;background:#cfc8ba;margin:10px auto 4px;}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:8px 20px 14px;border-bottom:1px solid var(--line-2);}
+.sheet-head h3{font-size:1.06rem;color:var(--navy);}
+.sheet-head .x{width:32px;height:32px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--navy);box-shadow:var(--sh-sm);}
+.sheet-head .x svg{width:17px;height:17px;}
+.sheet-sec{padding:16px 20px 4px;}
+.sheet-sec .t{font-size:.74rem;font-weight:700;color:var(--navy);margin-bottom:10px;}
+.opt-row{display:flex;flex-wrap:wrap;gap:8px;}
+.opt{padding:9px 15px;border-radius:999px;font-size:.8rem;font-weight:500;background:#fff;border:1px solid var(--line-2);color:#55606e;}
+.opt.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;margin:8px 20px 0;background:#fff;border:1px solid var(--line-2);border-radius:12px;}
+.toggle-row .l{font-size:.86rem;font-weight:500;color:var(--navy);}
+.sw{width:46px;height:27px;border-radius:99px;background:#d8d2c4;position:relative;transition:.2s;flex:none;}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;transition:.2s;box-shadow:var(--sh-sm);}
+.sw.on{background:var(--gold);}
+.sw.on::after{left:22px;}
+.sheet-actions{display:flex;gap:10px;padding:18px 20px 4px;}
+.sheet-actions button{padding:14px;border-radius:11px;font-weight:700;font-size:.9rem;}
+.sheet-actions .reset{flex:none;width:96px;background:#fff;border:1px solid var(--line-2);color:var(--navy);}
+.sheet-actions .apply{flex:1;background:var(--navy);color:#fff;}
+/* 予約フォーム */
+.book-prop{margin:14px 20px 0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.84rem;color:var(--navy);font-weight:500;box-shadow:var(--sh-sm);}
+.book-prop span{display:block;font-size:.7rem;color:var(--muted);font-weight:400;margin-bottom:2px;}
+.book-form{padding:14px 20px 0;display:flex;flex-direction:column;gap:14px;}
+.book-form .field input,.book-form .field select{width:100%;padding:13px 14px;border:1px solid var(--line-2);border-radius:11px;font-size:.9rem;background:#fff;outline:none;}
+.book-submit{width:100%;padding:15px;border-radius:11px;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#fff;font-weight:700;font-size:.92rem;box-shadow:var(--sh-md);margin-top:2px;}
+.book-done{padding:40px 30px;text-align:center;display:none;}
+.book-done.show{display:block;animation:fade .4s ease;}
+.book-done .ck{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-2));display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:#fff;box-shadow:var(--sh-md);}
+.book-done .ck svg{width:30px;height:30px;}
+.book-done h3{font-size:1.16rem;color:var(--navy);margin-bottom:10px;}
+.book-done p{font-size:.84rem;color:#55606e;line-height:1.8;}
+.book-done .close2{margin-top:22px;padding:13px 30px;border-radius:10px;background:var(--navy);color:#fff;font-weight:700;font-size:.86rem;}
+/* お知らせ */
+.notif{padding:6px 0 0;}
+.notif .item{display:flex;gap:13px;align-items:flex-start;padding:15px 20px;border-bottom:1px solid var(--line-2);}
+.notif .item .ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none;color:#fff;}
+.notif .item .ic svg{width:18px;height:18px;}
+.notif .item .ic.new{background:var(--navy);}
+.notif .item .ic.down{background:var(--red);}
+.notif .item .ic.ass{background:var(--gold);}
+.notif .item .tx .ti{font-size:.86rem;font-weight:700;color:var(--navy);}
+.notif .item .tx .ds{font-size:.76rem;color:#55606e;margin-top:2px;}
+.notif .item .tx .tm{font-size:.66rem;color:var(--muted);margin-top:4px;}
 
 /* ===================== トースト ===================== */
-.toast{position:absolute;left:50%;bottom:calc(var(--tabbar-h) + 18px + var(--safe-b));
-  transform:translateX(-50%) translateY(12px);background:var(--navy);color:#fff;font-size:.8rem;font-weight:500;
-  padding:11px 20px;border-radius:999px;box-shadow:var(--sh-lg);z-index:60;opacity:0;pointer-events:none;transition:.3s;white-space:nowrap;}
+.toast{position:absolute;left:50%;bottom:calc(var(--tabbar-h) + 18px + var(--safe-b));transform:translateX(-50%) translateY(12px);background:var(--navy);color:#fff;font-size:.8rem;font-weight:500;padding:11px 20px;border-radius:999px;box-shadow:var(--sh-lg);z-index:70;opacity:0;pointer-events:none;transition:.3s;white-space:nowrap;max-width:88%;text-align:center;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
 /* ===================== スプラッシュ ===================== */
-.splash{position:absolute;inset:0;z-index:100;background:linear-gradient(160deg,var(--navy-2),var(--navy-deep));
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .5s ease;}
-.splash .logo{font-family:"Noto Serif JP",serif;font-weight:700;font-size:1.7rem;color:#fff;letter-spacing:.05em;
-  opacity:0;transform:translateY(10px);animation:splashIn .7s .1s ease forwards;}
-.splash .sub{font-size:.66rem;letter-spacing:.3em;color:var(--gold-2);opacity:0;animation:splashIn .7s .3s ease forwards;}
-.splash .ring{width:34px;height:34px;border-radius:50%;border:2.5px solid rgba(255,255,255,.15);border-top-color:var(--gold-2);
-  animation:spin .9s linear infinite;margin-top:8px;opacity:0;animation:splashIn .6s .5s ease forwards,spin .9s linear infinite;}
+.splash{position:absolute;inset:0;z-index:100;background:linear-gradient(160deg,var(--navy-2),var(--navy-deep));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .5s ease;}
+.splash .logo{font-family:"Noto Serif JP",serif;font-weight:700;font-size:1.7rem;color:#fff;letter-spacing:.05em;opacity:0;transform:translateY(10px);animation:splashIn .7s .1s ease forwards;}
+.splash .sub{font-size:.62rem;letter-spacing:.28em;color:var(--gold-2);opacity:0;animation:splashIn .7s .3s ease forwards;text-align:center;}
+.splash .ring{width:34px;height:34px;border-radius:50%;border:2.5px solid rgba(255,255,255,.15);border-top-color:var(--gold-2);margin-top:8px;opacity:0;animation:splashIn .6s .5s ease forwards,spin .9s linear infinite;}
 @keyframes splashIn{to{opacity:1;transform:none;}}
 @keyframes spin{to{transform:rotate(360deg);}}
 .splash.hide{opacity:0;pointer-events:none;}
 
-/* LPへ戻る小リンク（提案確認用） */
-.lp-link{position:absolute;bottom:calc(var(--tabbar-h) + 14px + var(--safe-b));right:14px;z-index:30;
-  background:rgba(19,34,61,.9);color:#fff;font-size:.66rem;font-weight:500;padding:7px 13px;border-radius:999px;
-  box-shadow:var(--sh-md);display:flex;align-items:center;gap:6px;opacity:.9;}
+/* LPへ戻る小リンク */
+.lp-link{position:absolute;bottom:calc(var(--tabbar-h) + 14px + var(--safe-b));right:14px;z-index:30;background:rgba(19,34,61,.9);color:#fff;font-size:.66rem;font-weight:500;padding:7px 13px;border-radius:999px;box-shadow:var(--sh-md);display:flex;align-items:center;gap:6px;opacity:.92;}
 .lp-link svg{width:12px;height:12px;}
 
-@media (prefers-reduced-motion:reduce){
-  *{animation-duration:.001s!important;transition-duration:.001s!important;}
-}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important;transition-duration:.001s!important;}}
 </style>
 </head>
 <body>
 <div class="app" id="app">
 
-  <!-- スプラッシュ（アプリ起動演出） -->
+  <!-- スプラッシュ -->
   <div class="splash" id="splash">
     <div class="logo">Risaie Connect</div>
     <div class="sub">NAKASHIBETSU ／ BEKKAI ／ KUSHIRO</div>
@@ -293,25 +372,28 @@ img{display:block;max-width:100%;}
   <header class="topbar">
     <div class="brand">
       <span class="nm">Risaie Connect</span>
-      <span class="loc">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        中標津・別海・釧路
-      </span>
+      <span class="loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>中標津・別海・釧路</span>
     </div>
-    <button class="bell" aria-label="お知らせ">
+    <button class="bell" id="bell" aria-label="お知らせ">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
       <span class="badge"></span>
     </button>
   </header>
 
   <!-- 画面群 -->
-  <div class="screens">
+  <div class="screens" id="screens">
 
     <!-- ① さがす -->
     <section class="screen active" id="scr-search">
       <div class="searchbar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         <input id="q" type="search" placeholder="エリア・キーワードでさがす" autocomplete="off">
+      </div>
+      <div class="promo">
+        <div class="e">NAKASHIBETSU REAL ESTATE</div>
+        <h2>中標津・別海・釧路の住まい、<br>空き家のご相談もこのアプリで。</h2>
+        <p>写真を送るだけのかんたん査定にも対応しています。</p>
+        <button class="go" data-goto="assess">空き家を査定する<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
       </div>
       <div class="chips" id="chips">
         <button class="chip on" data-area="all">すべて</button>
@@ -320,12 +402,13 @@ img{display:block;max-width:100%;}
         <button class="chip" data-area="釧路市">釧路市</button>
         <button class="chip" data-area="空き家">空き家</button>
       </div>
+      <div id="newWrap">
+        <div class="sec-h"><h3>新着物件</h3><span class="more">新着順</span></div>
+        <div class="hrow" id="newRow"></div>
+      </div>
       <div class="result-row">
-        <div class="cnt"><b id="cnt">0</b> 件の物件</div>
-        <div class="sort">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
-          新着順
-        </div>
+        <div class="cnt"><b id="cnt">0</b>件 <i id="sortLbl">・ 新着順</i></div>
+        <button class="filter-btn" id="filterBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>絞り込み</button>
       </div>
       <div class="plist" id="list"></div>
     </section>
@@ -333,18 +416,30 @@ img{display:block;max-width:100%;}
     <!-- ② 地図 -->
     <section class="screen" id="scr-map">
       <div class="map-wrap" id="map">
-        <div class="map-hint">タップで物件を見る</div>
+        <div class="map-label" style="top:16%;left:24%;">中標津</div>
+        <div class="map-label" style="top:50%;left:64%;">別海</div>
+        <div class="map-label" style="top:80%;left:30%;">釧路</div>
+        <div class="me-dot" style="top:44%;left:44%;"></div>
+        <div class="map-ctrl">
+          <button aria-label="拡大"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          <button aria-label="縮小"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+        </div>
       </div>
-      <h2 class="scr-title">マップ周辺の物件</h2>
+      <div class="sec-h"><h3>このエリアの物件</h3><span class="more" id="mapCnt"></span></div>
       <div class="map-cards" id="mapcards"></div>
     </section>
 
     <!-- ③ 査定 -->
     <section class="screen" id="scr-assess">
       <div class="assess-hero">
-        <div class="eyebrow">FREE ASSESSMENT</div>
+        <div class="e">FREE ASSESSMENT</div>
         <h2>空き家かんたん査定</h2>
         <p>写真と住所を入れるだけ。周辺の成約事例から概算レンジを即お出しします。</p>
+        <div class="steps">
+          <div class="st on"><div class="b"></div>入力</div>
+          <div class="st on"><div class="b"></div>概算</div>
+          <div class="st"><div class="b"></div>相談</div>
+        </div>
       </div>
       <form class="assess-form" id="assessForm">
         <div class="field">
@@ -354,26 +449,12 @@ img{display:block;max-width:100%;}
             <span id="photoLbl">写真を撮る／選ぶ</span>
           </button>
         </div>
-        <div class="field">
-          <label>住所・エリア</label>
-          <input type="text" id="addr" placeholder="例：別海町西春別駅前" value="">
+        <div class="field"><label>住所・エリア</label><input type="text" id="addr" placeholder="例：別海町西春別駅前"></div>
+        <div class="field"><label>種別</label>
+          <select id="ptype"><option>戸建て（空き家）</option><option>土地</option><option>マンション</option><option>農地付き戸建て</option></select>
         </div>
-        <div class="field">
-          <label>種別</label>
-          <select id="ptype">
-            <option>戸建て（空き家）</option>
-            <option>土地</option>
-            <option>マンション</option>
-            <option>農地付き戸建て</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>おおよその築年数</label>
-          <select id="page">
-            <option>〜20年</option>
-            <option selected>20〜40年</option>
-            <option>40年以上</option>
-          </select>
+        <div class="field"><label>おおよその築年数</label>
+          <select id="page"><option>〜20年</option><option selected>20〜40年</option><option>40年以上</option></select>
         </div>
         <button type="submit" class="assess-submit">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg>
@@ -388,6 +469,10 @@ img{display:block;max-width:100%;}
         <p class="note">※ 周辺の成約事例をもとにした自動概算です。正確な査定は担当者がうかがいます。</p>
         <button class="cta" type="button" id="assessCta">この内容で相談する</button>
       </div>
+      <div class="assess-extra">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 4-5"/></svg></div>
+        <div class="tx"><b>相続シミュレーター</b>もご用意。<br>「売る／貸す／持ち続ける」を比較できます。</div>
+      </div>
     </section>
 
     <!-- ④ お気に入り -->
@@ -399,53 +484,96 @@ img{display:block;max-width:100%;}
 
   </div>
 
-  <!-- 物件詳細オーバーレイ -->
+  <!-- 物件詳細 -->
   <div class="detail" id="detail">
     <div class="detail-hero" id="detailHero">
-      <button class="back" id="detailBack" aria-label="戻る">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <button class="heart" id="detailHeart" aria-label="お気に入り">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 22l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
-      </button>
+      <div class="gallery" id="gallery"></div>
+      <div class="gdots" id="gdots"></div>
+      <button class="back" id="detailBack" aria-label="戻る"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="heart" id="detailHeart" aria-label="お気に入り"></button>
     </div>
     <div class="detail-body" id="detailBody"></div>
     <div class="detail-cta">
-      <button class="ghost" id="detailFav2" aria-label="お気に入り">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 22l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
-      </button>
+      <button class="ghost" id="detailFav2" aria-label="お気に入り"></button>
+      <button class="ghost" id="detailCall" aria-label="電話"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></button>
       <button class="primary" id="bookBtn">内見を予約する</button>
     </div>
   </div>
 
   <!-- タブバー -->
   <nav class="tabbar" id="tabbar">
-    <button class="tabbtn on" data-tab="search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <span class="lbl">さがす</span>
-    </button>
-    <button class="tabbtn" data-tab="map">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>
-      <span class="lbl">地図</span>
-    </button>
-    <button class="tabbtn" data-tab="assess">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      <span class="lbl">査定</span>
-    </button>
-    <button class="tabbtn" data-tab="fav">
-      <span class="fav-dot">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 22l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
-        <span class="n" id="favCount" style="display:none;">0</span>
-      </span>
-      <span class="lbl">お気に入り</span>
-    </button>
+    <button class="tabbtn on" data-tab="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="lbl">さがす</span></button>
+    <button class="tabbtn" data-tab="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg><span class="lbl">地図</span></button>
+    <button class="tabbtn" data-tab="assess"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span class="lbl">査定</span></button>
+    <button class="tabbtn" data-tab="fav"><span class="fav-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 22l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span class="n" id="favCount" style="display:none;">0</span></span><span class="lbl">お気に入り</span></button>
   </nav>
 
-  <!-- 提案サイト(LP)へ：確認用の小リンク -->
-  <a class="lp-link" href="lp.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7M21 3l-9 9M5 5h5M5 5v14h14v-5"/></svg>
-    提案サイト
-  </a>
+  <!-- 絞り込み・並び替えシート -->
+  <div class="sheet-wrap" id="sheetFilter">
+    <div class="sheet-bd"></div>
+    <div class="sheet">
+      <div class="grab"></div>
+      <div class="sheet-head"><h3>絞り込み・並び替え</h3><button class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+      <div class="sheet-sec"><div class="t">並び替え</div><div class="opt-row" data-group="sort">
+        <button class="opt on" data-val="new">新着順</button>
+        <button class="opt" data-val="asc">価格が安い順</button>
+        <button class="opt" data-val="desc">価格が高い順</button>
+      </div></div>
+      <div class="sheet-sec"><div class="t">種別</div><div class="opt-row" data-group="type">
+        <button class="opt on" data-val="all">すべて</button>
+        <button class="opt" data-val="戸建て">戸建て</button>
+        <button class="opt" data-val="土地">土地</button>
+        <button class="opt" data-val="マンション">マンション</button>
+      </div></div>
+      <div class="sheet-sec"><div class="t">価格帯（上限）</div><div class="opt-row" data-group="price">
+        <button class="opt on" data-val="0">指定なし</button>
+        <button class="opt" data-val="500">〜500万</button>
+        <button class="opt" data-val="1000">〜1,000万</button>
+        <button class="opt" data-val="1500">〜1,500万</button>
+      </div></div>
+      <div class="toggle-row"><span class="l">空き家のみ表示</span><span class="sw" id="swVacant"></span></div>
+      <div class="sheet-actions"><button class="reset" id="filterReset">リセット</button><button class="apply" id="filterApply">この条件で見る</button></div>
+    </div>
+  </div>
+
+  <!-- 内見予約シート -->
+  <div class="sheet-wrap" id="sheetBook">
+    <div class="sheet-bd"></div>
+    <div class="sheet">
+      <div class="grab"></div>
+      <div class="sheet-head"><h3>内見を予約する</h3><button class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+      <div id="bookFormWrap">
+        <div class="book-prop" id="bookProp"><span>対象物件</span>—</div>
+        <form class="book-form" id="bookForm">
+          <div class="field"><label>希望日</label><input type="date" id="bookDate" required></div>
+          <div class="field"><label>時間帯</label><select id="bookTime"><option>午前（9:00〜12:00）</option><option>午後（12:00〜15:00）</option><option>夕方（15:00〜18:00）</option></select></div>
+          <div class="field"><label>お名前</label><input type="text" id="bookName" placeholder="山田 太郎" required></div>
+          <div class="field"><label>電話番号 または メール</label><input type="text" id="bookContact" placeholder="090-0000-0000" required></div>
+          <!-- TODO: 送信先（フォーム/予約システム/LINE）。現在はデモのため画面内で完結します。 -->
+          <button type="submit" class="book-submit">この内容で予約をリクエスト</button>
+        </form>
+      </div>
+      <div class="book-done" id="bookDone">
+        <div class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <h3>予約リクエストを受け付けました</h3>
+        <p>担当者より折り返しご連絡いたします。<br>ありがとうございます。</p>
+        <button class="close2" id="bookClose2">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- お知らせシート -->
+  <div class="sheet-wrap" id="sheetNotif">
+    <div class="sheet-bd"></div>
+    <div class="sheet">
+      <div class="grab"></div>
+      <div class="sheet-head"><h3>お知らせ</h3><button class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+      <div class="notif" id="notifList"></div>
+    </div>
+  </div>
+
+  <!-- 提案サイト(LP)へ -->
+  <a class="lp-link" href="lp.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7M21 3l-9 9M5 5h5M5 5v14h14v-5"/></svg>提案サイト</a>
 
   <div class="toast" id="toast"></div>
 </div>
@@ -453,247 +581,305 @@ img{display:block;max-width:100%;}
 <script>
 /* ===================== データ ===================== */
 var PROPS = [
-  {id:1, town:'中標津町', area2:'東5条南', price:980, type:'戸建て 4LDK', size:'土地198㎡', age:'築18年',
-   tag:'新着', tagClass:'new', vacant:false, img:'g1', pin:{t:34,l:28},
-   life:{school:'中標津小・中まで徒歩12分', store:'スーパー 約600m', hosp:'町立病院 1.2km', farm:'—'},
+  {id:1,town:'中標津町',area2:'東5条南',price:980,type:'戸建て 4LDK',size:'土地198㎡',age:'築18年',tag:'新着',tagClass:'new',vacant:false,img:'g1',pin:{t:34,l:28},
+   access:'中標津空港 車8分 ／ 役場 1.5km',equip:['駐車2台','南向き','都市ガス','収納充実'],
+   life:{school:'中標津小・中まで徒歩12分',store:'スーパー 約600m',hosp:'町立病院 1.2km',farm:'—'},
    desc:'中標津の市街地に建つ南向き4LDK。広いリビングと2台分の駐車スペース。生活施設が徒歩圏で、子育て世帯に人気のエリアです。'},
-  {id:2, town:'別海町', area2:'西春別駅前', price:0, type:'土地＋古家', size:'土地420㎡', age:'築40年以上',
-   tag:'空き家', tagClass:'empty', vacant:true, img:'g2', pin:{t:58,l:60},
-   life:{school:'西春別小 1.5km', store:'商店 700m', hosp:'診療所 900m', farm:'就農・牧場 隣接'},
-   desc:'相続でご相談の多い空き家物件。広い敷地で建て替え・更地活用も可能。写真を送るだけで概算査定ができます。'},
-  {id:3, town:'釧路市', area2:'鳥取大通', price:1480, type:'マンション 3LDK', size:'専有74㎡', age:'築12年',
-   tag:'値下げ', tagClass:'down', vacant:false, img:'g3', pin:{t:72,l:34},
-   life:{school:'鳥取小 徒歩8分', store:'大型店 徒歩5分', hosp:'総合病院 1.0km', farm:'—'},
+  {id:2,town:'別海町',area2:'西春別駅前',price:0,type:'土地＋古家',size:'土地420㎡',age:'築40年以上',tag:'空き家',tagClass:'empty',vacant:true,img:'g2',pin:{t:58,l:60},
+   access:'JR西春別駅跡 0.4km ／ 別海中心部 車15分',equip:['更地化可','広い敷地','再建築可','相談可'],
+   life:{school:'西春別小 1.5km',store:'商店 700m',hosp:'診療所 900m',farm:'就農・牧場 隣接'},
+   desc:'相続でご相談の多い空き家物件。広い敷地で建て替え・更地活用も可能です。写真を送るだけで概算査定ができます。'},
+  {id:3,town:'釧路市',area2:'鳥取大通',price:1480,type:'マンション 3LDK',size:'専有74㎡',age:'築12年',tag:'値下げ',tagClass:'down',vacant:false,img:'g3',pin:{t:72,l:34},
+   access:'JR釧路駅 車7分 ／ 商業地まで徒歩5分',equip:['角部屋','オートロック','宅配ボックス','EV'],
+   life:{school:'鳥取小 徒歩8分',store:'大型店 徒歩5分',hosp:'総合病院 1.0km',farm:'—'},
    desc:'駅・商業施設が近い好立地の3LDK。角部屋で陽当たり良好。価格改定があり、よりお求めやすくなりました。'},
-  {id:4, town:'中標津町', area2:'緑町', price:1250, type:'戸建て 5LDK', size:'土地240㎡', age:'築6年',
-   tag:'新着', tagClass:'new', vacant:false, img:'g4', pin:{t:22,l:52},
-   life:{school:'緑ヶ丘小 徒歩9分', store:'スーパー 800m', hosp:'クリニック 600m', farm:'—'},
+  {id:4,town:'中標津町',area2:'緑町',price:1250,type:'戸建て 5LDK',size:'土地240㎡',age:'築6年',tag:'新着',tagClass:'new',vacant:false,img:'g4',pin:{t:22,l:52},
+   access:'中標津中心部 車5分',equip:['高断熱','築浅','書斎','土間収納'],
+   life:{school:'緑ヶ丘小 徒歩9分',store:'スーパー 800m',hosp:'クリニック 600m',farm:'—'},
    desc:'築浅・高断熱の5LDK。広い土間収納と書斎付き。冬も暖かく光熱費を抑えられる住まいです。'},
-  {id:5, town:'別海町', area2:'本別海', price:680, type:'農地付き戸建て', size:'土地1,100㎡', age:'築28年',
-   tag:'移住', tagClass:'move', vacant:false, img:'g5', pin:{t:48,l:78},
-   life:{school:'本別海小 2.0km', store:'商店 1.2km', hosp:'診療所 1.8km', farm:'就農相談 可'},
+  {id:5,town:'別海町',area2:'本別海',price:680,type:'農地付き戸建て',size:'土地1,100㎡',age:'築28年',tag:'移住',tagClass:'move',vacant:false,img:'g5',pin:{t:48,l:78},
+   access:'別海中心部 車20分 ／ 野付半島 近く',equip:['農地付','薪ストーブ','物置','海近'],
+   life:{school:'本別海小 2.0km',store:'商店 1.2km',hosp:'診療所 1.8km',farm:'就農相談 可'},
    desc:'広い農地付きで、家庭菜園や就農を考える移住者に。海も近く、のびのびと暮らせる環境です。'},
-  {id:6, town:'釧路市', area2:'愛国西', price:780, type:'戸建て 2LDK', size:'土地165㎡', age:'築22年',
-   tag:null, tagClass:'', vacant:false, img:'g6', pin:{t:84,l:58},
-   life:{school:'愛国小 徒歩10分', store:'スーパー 500m', hosp:'病院 1.4km', farm:'—'},
+  {id:6,town:'釧路市',area2:'愛国西',price:780,type:'戸建て 2LDK',size:'土地165㎡',age:'築22年',tag:null,tagClass:'',vacant:false,img:'g6',pin:{t:84,l:58},
+   access:'JR新富士駅 車6分',equip:['駐車1台','リフォーム済','コンパクト'],
+   life:{school:'愛国小 徒歩10分',store:'スーパー 500m',hosp:'病院 1.4km',farm:'—'},
    desc:'コンパクトで管理しやすい2LDK。単身・ご夫婦の住み替えやセカンドハウスにも。'},
-  {id:7, town:'中標津町', area2:'計根別', price:420, type:'中古戸建て', size:'土地210㎡', age:'築40年以上',
-   tag:'空き家', tagClass:'empty', vacant:true, img:'g7', pin:{t:14,l:20},
-   life:{school:'計根別学園 1.1km', store:'商店 800m', hosp:'診療所 1.0km', farm:'牧場地帯'},
+  {id:7,town:'中標津町',area2:'計根別',price:420,type:'中古戸建て',size:'土地210㎡',age:'築40年以上',tag:'空き家',tagClass:'empty',vacant:true,img:'g7',pin:{t:14,l:20},
+   access:'計根別市街 車5分',equip:['DIY向き','駐車スペース','静かな環境'],
+   life:{school:'計根別学園 1.1km',store:'商店 800m',hosp:'診療所 1.0km',farm:'牧場地帯'},
    desc:'静かな郊外の空き家。DIYやリノベ前提でお求めやすい価格。活用方法のご相談も承ります。'},
-  {id:8, town:'別海町', area2:'尾岱沼', price:1100, type:'戸建て 3LDK', size:'土地280㎡', age:'築15年',
-   tag:'値下げ', tagClass:'down', vacant:false, img:'g8', pin:{t:40,l:46},
-   life:{school:'尾岱沼小 徒歩15分', store:'商店 900m', hosp:'診療所 1.3km', farm:'漁業・酪農地帯'},
-   desc:'海が近い3LDK。窓からの眺めが魅力。価格改定済みでこの立地としては希少です。'}
+  {id:8,town:'別海町',area2:'尾岱沼',price:1100,type:'戸建て 3LDK',size:'土地280㎡',age:'築15年',tag:'値下げ',tagClass:'down',vacant:false,img:'g8',pin:{t:40,l:46},
+   access:'尾岱沼漁港 徒歩10分 ／ 別海中心部 車18分',equip:['海ビュー','駐車2台','価格改定'],
+   life:{school:'尾岱沼小 徒歩15分',store:'商店 900m',hosp:'診療所 1.3km',farm:'漁業・酪農地帯'},
+   desc:'海が近い3LDK。窓からの眺めが魅力です。価格改定済みで、この立地としては希少な一邸。'}
 ];
+PROPS.forEach(function(p){ p.photos=[p.img,'gr1','gr2']; });
+var PHOTO_CAP=['外観','室内（LDK）','室内（居室）'];
 
 /* ===================== 状態 ===================== */
-var state = { area:'all', q:'', favs:{}, currentId:null };
+var state={area:'all',q:'',sort:'new',priceCap:0,typeFilter:'all',vacantOnly:false,favs:{},currentId:null};
+var draft={sort:'new',typeFilter:'all',priceCap:0,vacantOnly:false}; // フィルタシート編集中
 
 /* ===================== ユーティリティ ===================== */
-var $ = function(s,el){return (el||document).querySelector(s);};
-var $$ = function(s,el){return Array.prototype.slice.call((el||document).querySelectorAll(s));};
-function priceLabel(p){return p.price ? ('¥'+p.price.toLocaleString()+'万') : '査定受付中';}
-var heartPath = '<path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 22l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>';
+function $(s,el){return (el||document).querySelector(s);}
+function $$(s,el){return Array.prototype.slice.call((el||document).querySelectorAll(s));}
+function priceLabel(p){return p.price?('¥'+p.price.toLocaleString()+'万'):'査定受付中';}
+var heartPath='<path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 22l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>';
 function heartSvg(on){return '<svg viewBox="0 0 24 24" fill="'+(on?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+heartPath+'</svg>';}
+var camIco='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-5-5L5 21"/></svg>';
 
 function cardHTML(p){
   return '<article class="pcard" data-id="'+p.id+'">'
-    + '<div class="pcard-img '+p.img+'">'
-      + (p.tag?'<span class="tag '+p.tagClass+'">'+p.tag+'</span>':'')
-      + '<button class="heart'+(state.favs[p.id]?' on':'')+'" data-fav="'+p.id+'" aria-label="お気に入り">'+heartSvg(state.favs[p.id])+'</button>'
-      + '<span class="photo-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-5-5L5 21"/></svg></span>'
-    + '</div>'
-    + '<div class="pcard-body">'
-      + '<div class="pcard-price">'+priceLabel(p)+(p.vacant?'<small>査定対応</small>':'')+'</div>'
-      + '<div class="pcard-addr">'+p.town+' '+p.area2+'</div>'
-      + '<div class="pcard-meta"><span>'+p.type+'</span><span>'+p.size+'</span><span>'+p.age+'</span></div>'
-    + '</div>'
-  + '</article>';
+    +'<div class="pcard-img '+p.img+'">'
+      +(p.tag?'<span class="tag '+p.tagClass+'">'+p.tag+'</span>':'')
+      +'<button class="heart'+(state.favs[p.id]?' on':'')+'" data-fav="'+p.id+'" aria-label="お気に入り">'+heartSvg(state.favs[p.id])+'</button>'
+      +'<span class="photo-ico">'+camIco+'</span>'
+      +'<span class="pn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-5-5L5 21"/></svg>'+p.photos.length+'</span>'
+    +'</div>'
+    +'<div class="pcard-body">'
+      +'<div class="pcard-price">'+priceLabel(p)+(p.vacant?'<small>査定対応</small>':'')+'</div>'
+      +'<div class="pcard-addr">'+p.town+' '+p.area2+'</div>'
+      +'<div class="pcard-meta"><span>'+p.type+'</span><span>'+p.size+'</span><span>'+p.age+'</span></div>'
+    +'</div>'
+  +'</article>';
 }
 
-/* ===================== 検索画面の描画 ===================== */
+/* ===================== フィルタ＆描画 ===================== */
 function filtered(){
-  return PROPS.filter(function(p){
-    var okArea = state.area==='all' ? true : (state.area==='空き家' ? p.vacant : p.town===state.area);
-    var q = state.q.trim();
-    var okQ = !q || (p.town+p.area2+p.type+(p.tag||'')).indexOf(q)>=0;
-    return okArea && okQ;
+  var arr=PROPS.filter(function(p){
+    if(state.area!=='all'){ if(state.area==='空き家'){ if(!p.vacant) return false; } else if(p.town!==state.area) return false; }
+    var q=state.q.trim(); if(q && (p.town+p.area2+p.type+(p.tag||'')).indexOf(q)<0) return false;
+    if(state.vacantOnly && !p.vacant) return false;
+    if(state.typeFilter!=='all' && p.type.indexOf(state.typeFilter)<0) return false;
+    if(state.priceCap>0 && (!p.price || p.price>state.priceCap)) return false;
+    return true;
   });
+  if(state.sort==='asc') arr.sort(function(a,b){return (a.price||0)-(b.price||0);});
+  else if(state.sort==='desc') arr.sort(function(a,b){return (b.price||0)-(a.price||0);});
+  return arr;
 }
-function renderList(){
-  var arr = filtered();
-  $('#cnt').textContent = arr.length;
-  var html = arr.map(cardHTML).join('');
-  if(!arr.length){
-    html = '<div class="empty-state"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>条件に合う物件が見つかりませんでした。</div>';
-  }
-  $('#list').innerHTML = html;
+function isHome(){return state.area==='all'&&!state.q.trim()&&state.sort==='new'&&state.typeFilter==='all'&&state.priceCap===0&&!state.vacantOnly;}
+var SORT_LBL={new:'新着順',asc:'価格が安い順',desc:'価格が高い順'};
+function renderSearch(){
+  var arr=filtered();
+  $('#cnt').textContent=arr.length;
+  $('#sortLbl').textContent='・ '+SORT_LBL[state.sort];
+  $('#list').innerHTML=arr.length?arr.map(cardHTML).join('')
+    :'<div class="empty-state"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>条件に合う物件が見つかりませんでした。<br>絞り込みを変えてお試しください。</div>';
+  var nw=PROPS.filter(function(p){return p.tag==='新着';});
+  $('#newRow').innerHTML=nw.map(cardHTML).join('');
+  $('#newWrap').style.display=isHome()?'block':'none';
 }
-
-/* ===================== お気に入り画面 ===================== */
 function renderFav(){
-  var arr = PROPS.filter(function(p){return state.favs[p.id];});
-  if(!arr.length){
-    $('#favlist').innerHTML = '<div class="empty-state"><div class="ico">'+heartSvg(false)+'</div>まだお気に入りはありません。<br>気になる物件の♡をタップして保存しましょう。</div>';
-  }else{
-    $('#favlist').innerHTML = arr.map(cardHTML).join('');
-  }
+  var arr=PROPS.filter(function(p){return state.favs[p.id];});
+  $('#favlist').innerHTML=arr.length?arr.map(cardHTML).join('')
+    :'<div class="empty-state"><div class="ico">'+heartSvg(false)+'</div>まだお気に入りはありません。<br>気になる物件の♡をタップして保存しましょう。</div>';
 }
 function updateFavBadge(){
-  var n = Object.keys(state.favs).filter(function(k){return state.favs[k];}).length;
-  var el = $('#favCount');
-  if(n>0){el.style.display='flex';el.textContent=n;}else{el.style.display='none';}
+  var n=PROPS.filter(function(p){return state.favs[p.id];}).length;
+  var el=$('#favCount'); if(n>0){el.style.display='flex';el.textContent=n;}else{el.style.display='none';}
 }
-
-/* ===================== 地図画面 ===================== */
 function renderMap(){
-  var map = $('#map');
-  $$('.pin', map).forEach(function(n){n.remove();});
+  var map=$('#map'); $$('.pin',map).forEach(function(n){n.remove();});
   PROPS.forEach(function(p){
-    var pin = document.createElement('button');
-    pin.className = 'pin'+(p.vacant?' empty':'');
-    pin.setAttribute('data-id', p.id);
-    pin.style.top = p.pin.t+'%';
-    pin.style.left = p.pin.l+'%';
-    pin.innerHTML = '<span class="bub">'+(p.price?('¥'+p.price+'万'):'査定')+'</span>';
+    var pin=document.createElement('button');
+    pin.className='pin'+(p.vacant?' empty':''); pin.setAttribute('data-id',p.id);
+    pin.style.top=p.pin.t+'%'; pin.style.left=p.pin.l+'%';
+    pin.innerHTML='<span class="bub">'+(p.price?('¥'+p.price+'万'):'査定')+'</span>';
     map.appendChild(pin);
   });
-  $('#mapcards').innerHTML = PROPS.map(cardHTML).join('');
+  $('#mapcards').innerHTML=PROPS.map(cardHTML).join('');
+  $('#mapCnt').textContent=PROPS.length+'件';
 }
 
-/* ===================== 詳細オーバーレイ ===================== */
+/* ===================== 詳細 ===================== */
+var AGENT_INITIAL='R';
 function openDetail(id){
-  var p = PROPS.find(function(x){return x.id===id;});
-  if(!p) return;
-  state.currentId = id;
-  var hero = $('#detailHero');
-  hero.className = 'detail-hero';
-  $('#detail').querySelector('.detail-hero').style.background = '';
-  hero.setAttribute('style','');
-  // 画像プレースホルダのグラデを適用
-  hero.classList.add(p.img);
-  var lifeRow = function(icon,k,v){
-    return '<div class="row"><div class="ic">'+icon+'</div><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';
-  };
+  var p=PROPS.find(function(x){return x.id===id;}); if(!p) return;
+  state.currentId=id;
+  // ギャラリー
+  $('#gallery').innerHTML=p.photos.map(function(g,i){
+    return '<div class="slide '+g+'"><span class="photo-ico">'+camIco+'</span><span class="cap">'+(PHOTO_CAP[i]||'写真')+'</span></div>';
+  }).join('');
+  $('#gdots').innerHTML=p.photos.map(function(_,i){return '<span class="'+(i===0?'on':'')+'"></span>';}).join('');
+  $('#gallery').scrollLeft=0;
+  // 本文
+  var lifeRow=function(icon,k,v){return '<div class="row"><div class="ic">'+icon+'</div><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';};
   var icSchool='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 3 3 6 3s6-2 6-3v-5"/></svg>';
   var icStore='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9 4 4h16l1 5M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/></svg>';
   var icHosp='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6v12M6 12h12"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>';
   var icFarm='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-6h6v6"/></svg>';
-  $('#detailBody').innerHTML =
+  var icTrain='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M8 17l-2 4M16 17l2 4"/><circle cx="9" cy="14" r=".6"/><circle cx="15" cy="14" r=".6"/></svg>';
+  var similar=PROPS.filter(function(x){return x.town===p.town&&x.id!==p.id;});
+  if(similar.length<2) similar=PROPS.filter(function(x){return x.id!==p.id;}).slice(0,4);
+  $('#detailBody').innerHTML=
     '<div class="tagrow">'+(p.tag?'<span class="tag '+p.tagClass+'">'+p.tag+'</span>':'')+'<span class="tag" style="background:var(--paper-2);color:var(--navy);">'+p.town+'</span></div>'
-    + '<div class="detail-price">'+priceLabel(p)+'</div>'
-    + '<div class="detail-addr">'+p.town+' '+p.area2+'</div>'
-    + '<div class="detail-spec">'
-      + '<div class="s"><div class="k">種別</div><div class="v">'+p.type.split(' ')[0]+'</div></div>'
-      + '<div class="s"><div class="k">広さ</div><div class="v">'+p.size+'</div></div>'
-      + '<div class="s"><div class="k">築年数</div><div class="v">'+p.age+'</div></div>'
-    + '</div>'
-    + '<div class="block-title"><span class="br"></span>物件について</div>'
-    + '<p class="detail-desc">'+p.desc+'</p>'
-    + '<div class="block-title"><span class="br"></span>生活情報レイヤー</div>'
-    + '<div class="life">'
-      + lifeRow(icSchool,'学校区',p.life.school)
-      + lifeRow(icStore,'スーパー',p.life.store)
-      + lifeRow(icHosp,'病院',p.life.hosp)
-      + lifeRow(icFarm,'就農・周辺',p.life.farm)
-    + '</div>';
+    +'<div class="detail-price">'+priceLabel(p)+'</div>'
+    +'<div class="detail-addr">'+p.town+' '+p.area2+'</div>'
+    +'<div class="detail-spec">'
+      +'<div class="s"><div class="k">種別</div><div class="v">'+p.type.split(' ')[0]+'</div></div>'
+      +'<div class="s"><div class="k">広さ</div><div class="v">'+p.size+'</div></div>'
+      +'<div class="s"><div class="k">築年数</div><div class="v">'+p.age+'</div></div>'
+    +'</div>'
+    +'<div class="block-title"><span class="br"></span>物件について</div><p class="detail-desc">'+p.desc+'</p>'
+    +'<div class="block-title"><span class="br"></span>設備・特徴</div><div class="equip">'+p.equip.map(function(e){return '<span>'+e+'</span>';}).join('')+'</div>'
+    +'<div class="block-title"><span class="br"></span>アクセス</div><div class="access-card"><div class="ic">'+icTrain+'</div><div class="tx">'+p.access+'</div></div>'
+    +'<div class="block-title"><span class="br"></span>生活情報レイヤー</div><div class="life">'
+      +lifeRow(icSchool,'学校区',p.life.school)+lifeRow(icStore,'スーパー',p.life.store)+lifeRow(icHosp,'病院',p.life.hosp)+lifeRow(icFarm,'就農・周辺',p.life.farm)
+    +'</div>'
+    +'<div class="block-title"><span class="br"></span>お問い合わせ</div>'
+    +'<div class="agent"><div class="av">'+AGENT_INITIAL+'</div><div><div class="nm">株式会社リサイエ</div><div class="ro">中標津・別海・釧路エリア担当</div></div>'
+      +'<button class="call" id="agentCall"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>電話</button></div>'
+    +'<div class="block-title"><span class="br"></span>近くの物件</div><div class="hrow">'+similar.map(cardHTML).join('')+'</div>';
   syncDetailHeart();
+  $('#detailBody').scrollTop=0;
   $('#detail').classList.add('open');
 }
 function syncDetailHeart(){
-  var on = !!state.favs[state.currentId];
-  var h1 = $('#detailHeart'), h2 = $('#detailFav2');
-  h1.classList.toggle('on', on); h2.classList.toggle('on', on);
-  h1.innerHTML = heartSvg(on); h2.innerHTML = heartSvg(on);
+  var on=!!state.favs[state.currentId];
+  $('#detailHeart').classList.toggle('on',on); $('#detailHeart').innerHTML=heartSvg(on);
+  $('#detailFav2').classList.toggle('on',on); $('#detailFav2').innerHTML=heartSvg(on);
 }
-function closeDetail(){ $('#detail').classList.remove('open'); state.currentId=null; }
+function closeDetail(){$('#detail').classList.remove('open');state.currentId=null;}
 
-/* ===================== お気に入り切替 ===================== */
+/* ===================== お気に入り ===================== */
 function toggleFav(id){
-  state.favs[id] = !state.favs[id];
-  renderList(); renderFav(); renderMap(); updateFavBadge();
+  state.favs[id]=!state.favs[id];
+  renderSearch();renderFav();renderMap();updateFavBadge();
   if(state.currentId===id) syncDetailHeart();
-  showToast(state.favs[id] ? 'お気に入りに追加しました' : 'お気に入りから外しました');
+  showToast(state.favs[id]?'お気に入りに追加しました':'お気に入りから外しました');
 }
 
 /* ===================== トースト ===================== */
 var toastT;
-function showToast(msg){
-  var t = $('#toast'); t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastT); toastT = setTimeout(function(){t.classList.remove('show');},1800);
+function showToast(msg){var t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show');},1900);}
+
+/* ===================== タブ ===================== */
+function switchTab(tab){
+  $$('.tabbtn').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tab')===tab);});
+  var m={search:'scr-search',map:'scr-map',assess:'scr-assess',fav:'scr-fav'};
+  $$('.screen').forEach(function(s){s.classList.toggle('active',s.id===m[tab]);});
+  if(tab==='fav') renderFav();
 }
 
-/* ===================== タブ切替 ===================== */
-function switchTab(tab){
-  $$('.tabbtn').forEach(function(b){b.classList.toggle('on', b.getAttribute('data-tab')===tab);});
-  var map={search:'scr-search',map:'scr-map',assess:'scr-assess',fav:'scr-fav'};
-  $$('.screen').forEach(function(s){s.classList.toggle('active', s.id===map[tab]);});
-  if(tab==='fav') renderFav();
-  $('.screens').scrollTop = 0;
+/* ===================== シート ===================== */
+function openSheet(id){$('#'+id).classList.add('open');}
+function closeSheet(el){ (el.closest?el.closest('.sheet-wrap'):el).classList.remove('open'); }
+$$('.sheet-bd').forEach(function(bd){bd.addEventListener('click',function(){closeSheet(bd);});});
+$$('.sheet-head .x').forEach(function(x){x.addEventListener('click',function(){closeSheet(x);});});
+
+/* フィルタシート */
+function openFilter(){
+  draft={sort:state.sort,typeFilter:state.typeFilter,priceCap:state.priceCap,vacantOnly:state.vacantOnly};
+  setGroup('sort',draft.sort);setGroup('type',draft.typeFilter);setGroup('price',String(draft.priceCap));
+  $('#swVacant').classList.toggle('on',draft.vacantOnly);
+  openSheet('sheetFilter');
+}
+function setGroup(group,val){
+  $$('[data-group="'+group+'"] .opt').forEach(function(o){o.classList.toggle('on',o.getAttribute('data-val')===val);});
+}
+$$('.opt-row').forEach(function(row){
+  row.addEventListener('click',function(e){
+    var o=e.target.closest('.opt'); if(!o) return;
+    var g=row.getAttribute('data-group'),v=o.getAttribute('data-val');
+    setGroup(g,v);
+    if(g==='sort') draft.sort=v;
+    if(g==='type') draft.typeFilter=v;
+    if(g==='price') draft.priceCap=parseInt(v,10);
+  });
+});
+$('#swVacant').addEventListener('click',function(){this.classList.toggle('on');draft.vacantOnly=this.classList.contains('on');});
+$('#filterApply').addEventListener('click',function(){
+  state.sort=draft.sort;state.typeFilter=draft.typeFilter;state.priceCap=draft.priceCap;state.vacantOnly=draft.vacantOnly;
+  renderSearch();closeSheet($('#sheetFilter'));showToast('条件を更新しました');
+});
+$('#filterReset').addEventListener('click',function(){
+  draft={sort:'new',typeFilter:'all',priceCap:0,vacantOnly:false};
+  setGroup('sort','new');setGroup('type','all');setGroup('price','0');$('#swVacant').classList.remove('on');
+});
+
+/* 予約シート */
+function openBook(){
+  var p=PROPS.find(function(x){return x.id===state.currentId;});
+  $('#bookProp').innerHTML='<span>対象物件</span>'+(p?(p.town+' '+p.area2+'　'+priceLabel(p)):'—');
+  $('#bookFormWrap').style.display='block';$('#bookDone').classList.remove('show');
+  try{ $('#bookDate').min=new Date().toISOString().slice(0,10); }catch(e){}
+  openSheet('sheetBook');
+}
+$('#bookForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  $('#bookFormWrap').style.display='none';$('#bookDone').classList.add('show');
+});
+$('#bookClose2').addEventListener('click',function(){closeSheet($('#sheetBook'));$('#bookForm').reset();});
+
+/* お知らせシート */
+var NOTIF=[
+  {cls:'new',ti:'新着物件のお知らせ',ds:'中標津町 緑町 5LDK が掲載されました',tm:'1時間前',id:4},
+  {cls:'down',ti:'値下げのお知らせ',ds:'釧路市 鳥取大通 マンションが値下げ',tm:'昨日',id:3},
+  {cls:'down',ti:'値下げのお知らせ',ds:'別海町 尾岱沼 戸建てが価格改定',tm:'2日前',id:8},
+  {cls:'ass',ti:'査定のご返信',ds:'別海町 西春別の概算査定が届きました',tm:'3日前',id:2}
+];
+function renderNotif(){
+  var icMap={
+    new:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>',
+    down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>',
+    ass:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>'
+  };
+  $('#notifList').innerHTML=NOTIF.map(function(n){
+    return '<button class="item" data-id="'+n.id+'" style="width:100%;text-align:left;background:none;"><div class="ic '+n.cls+'">'+icMap[n.cls]+'</div><div class="tx"><div class="ti">'+n.ti+'</div><div class="ds">'+n.ds+'</div><div class="tm">'+n.tm+'</div></div></button>';
+  }).join('');
 }
 
 /* ===================== イベント ===================== */
-// タブ
-$('#tabbar').addEventListener('click', function(e){
-  var b = e.target.closest('.tabbtn'); if(!b) return;
-  switchTab(b.getAttribute('data-tab'));
+$('#tabbar').addEventListener('click',function(e){var b=e.target.closest('.tabbtn');if(b)switchTab(b.getAttribute('data-tab'));});
+$('#chips').addEventListener('click',function(e){var c=e.target.closest('.chip');if(!c)return;$$('.chip').forEach(function(x){x.classList.remove('on');});c.classList.add('on');state.area=c.getAttribute('data-area');renderSearch();});
+$('#q').addEventListener('input',function(e){state.q=e.target.value;renderSearch();});
+$('#filterBtn').addEventListener('click',openFilter);
+$('#bell').addEventListener('click',function(){renderNotif();openSheet('sheetNotif');});
+// プロモ「査定する」など data-goto
+document.addEventListener('click',function(e){
+  var goto=e.target.closest('[data-goto]'); if(goto){switchTab(goto.getAttribute('data-goto'));return;}
+  var favBtn=e.target.closest('[data-fav]'); if(favBtn){e.stopPropagation();toggleFav(parseInt(favBtn.getAttribute('data-fav'),10));return;}
+  var notifItem=e.target.closest('.notif .item'); if(notifItem){closeSheet($('#sheetNotif'));openDetail(parseInt(notifItem.getAttribute('data-id'),10));return;}
+  var pinBtn=e.target.closest('.pin'); if(pinBtn){selectPin(parseInt(pinBtn.getAttribute('data-id'),10));return;}
+  var card=e.target.closest('.pcard'); if(card){openDetail(parseInt(card.getAttribute('data-id'),10));return;}
 });
-// 検索チップ
-$('#chips').addEventListener('click', function(e){
-  var c = e.target.closest('.chip'); if(!c) return;
-  $$('.chip').forEach(function(x){x.classList.remove('on');});
-  c.classList.add('on'); state.area = c.getAttribute('data-area'); renderList();
-});
-// 検索入力
-$('#q').addEventListener('input', function(e){ state.q = e.target.value; renderList(); });
-// カード/お気に入りタップ（委譲）
-document.addEventListener('click', function(e){
-  var favBtn = e.target.closest('[data-fav]');
-  if(favBtn){ e.stopPropagation(); toggleFav(parseInt(favBtn.getAttribute('data-fav'),10)); return; }
-  var pinBtn = e.target.closest('.pin');
-  if(pinBtn){ openDetail(parseInt(pinBtn.getAttribute('data-id'),10)); return; }
-  var card = e.target.closest('.pcard');
-  if(card){ openDetail(parseInt(card.getAttribute('data-id'),10)); return; }
-});
+function selectPin(id){
+  $$('.pin').forEach(function(p){p.classList.toggle('active',p.getAttribute('data-id')===String(id));});
+  var card=$('#mapcards .pcard[data-id="'+id+'"]'); if(card) card.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+}
 // 詳細
-$('#detailBack').addEventListener('click', closeDetail);
-$('#detailHeart').addEventListener('click', function(){ if(state.currentId) toggleFav(state.currentId); });
-$('#detailFav2').addEventListener('click', function(){ if(state.currentId) toggleFav(state.currentId); });
-$('#bookBtn').addEventListener('click', function(){ showToast('内見予約：担当者よりご連絡します'); });
-// ベル
-$('.bell').addEventListener('click', function(){ showToast('新着 1件・値下げ 2件のお知らせ'); });
-// 査定フォーム
-$('#photoBtn').addEventListener('click', function(){
-  this.classList.add('filled'); $('#photoLbl').textContent='写真を1枚 選択しました ✓';
+$('#detailBack').addEventListener('click',closeDetail);
+$('#detailHeart').addEventListener('click',function(){if(state.currentId)toggleFav(state.currentId);});
+$('#detailFav2').addEventListener('click',function(){if(state.currentId)toggleFav(state.currentId);});
+$('#detailCall').addEventListener('click',function(){showToast('お電話：担当者におつなぎします');});
+$('#bookBtn').addEventListener('click',openBook);
+$('#detailBody').addEventListener('click',function(e){ if(e.target.closest('#agentCall')) showToast('お電話：担当者におつなぎします'); });
+// ギャラリーのドット更新
+$('#gallery').addEventListener('scroll',function(){
+  var g=this,w=g.clientWidth; if(!w)return; var i=Math.round(g.scrollLeft/w);
+  $$('#gdots span').forEach(function(s,idx){s.classList.toggle('on',idx===i);});
 });
-$('#assessForm').addEventListener('submit', function(e){
+// 査定
+$('#photoBtn').addEventListener('click',function(){this.classList.add('filled');$('#photoLbl').textContent='写真を1枚 選択しました ✓';});
+$('#assessForm').addEventListener('submit',function(e){
   e.preventDefault();
-  // 入力に応じてダミーのレンジを算出
-  var typeSel = $('#ptype').value, ageSel = $('#page').value;
-  var base = 720;
-  if(typeSel.indexOf('土地')>=0) base=540;
-  if(typeSel.indexOf('マンション')>=0) base=1180;
-  if(typeSel.indexOf('農地')>=0) base=640;
-  if(ageSel.indexOf('40年')>=0) base = Math.round(base*0.78);
-  if(ageSel.indexOf('〜20年')>=0) base = Math.round(base*1.18);
-  var lo = Math.round(base*0.86/10)*10, hi = Math.round(base*1.12/10)*10;
-  $('#assessRange').textContent = '¥'+lo+'万 〜 ¥'+hi+'万';
+  var t=$('#ptype').value,a=$('#page').value,base=720;
+  if(t.indexOf('土地')>=0)base=540; if(t.indexOf('マンション')>=0)base=1180; if(t.indexOf('農地')>=0)base=640;
+  if(a==='40年以上')base=Math.round(base*0.78); if(a==='〜20年')base=Math.round(base*1.18);
+  var lo=Math.round(base*0.86/10)*10,hi=Math.round(base*1.12/10)*10;
+  $('#assessRange').textContent='¥'+lo+'万 〜 ¥'+hi+'万';
   $('#assessResult').classList.add('show');
-  setTimeout(function(){ $('#assessResult').scrollIntoView({behavior:'smooth',block:'center'}); }, 60);
+  setTimeout(function(){$('#assessResult').scrollIntoView({behavior:'smooth',block:'center'});},60);
 });
-$('#assessCta').addEventListener('click', function(){ showToast('査定相談を受け付けました'); });
+$('#assessCta').addEventListener('click',function(){showToast('査定相談を受け付けました');});
+// 地図ズーム（演出）
+$$('.map-ctrl button').forEach(function(b){b.addEventListener('click',function(){showToast('地図はデモ表示です');});});
 
 /* ===================== 初期化 ===================== */
-renderList(); renderMap(); updateFavBadge();
-
-// スプラッシュをフェードアウト（アプリ起動演出）
-// load 待ちにせず、DOM準備後に一定時間で必ず閉じる
-setTimeout(function(){
-  var sp = $('#splash'); if(!sp) return;
-  sp.classList.add('hide');
-  setTimeout(function(){ if(sp&&sp.parentNode) sp.parentNode.removeChild(sp); }, 600);
-}, 950);
+renderSearch();renderMap();updateFavBadge();
+setTimeout(function(){var sp=$('#splash');if(!sp)return;sp.classList.add('hide');setTimeout(function(){if(sp&&sp.parentNode)sp.parentNode.removeChild(sp);},600);},950);
 </script>
 </body>
 </html>

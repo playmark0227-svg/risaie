@@ -1,0 +1,15 @@
+{
+  "name": "Risaie Connect",
+  "short_name": "Risaie",
+  "description": "中標津・別海・釧路の物件をさがす、お客様向け不動産アプリ。",
+  "lang": "ja",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1a30",
+  "theme_color": "#13223d",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
